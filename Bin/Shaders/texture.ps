@@ -1,0 +1,25 @@
+//===========================================
+//
+//	SHADER FILE
+//	Textured Pixel shader
+//
+//===========================================
+
+#version 400
+
+//INPUT
+in vec2 texCoord;
+
+//OUTPUT
+out vec4 outputColour;
+
+//UNIFORM Variables
+uniform sampler2D shaderTexture;
+
+//================== PIXEL SHADER ==============
+void main(void)
+{
+	vec4 diffuseColour = texture(shaderTexture, texCoord);
+
+	outputColour = diffuseColour;
+}

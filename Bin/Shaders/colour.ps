@@ -1,0 +1,22 @@
+//===========================================
+//
+//	SHADER FILE
+//	Pixel shader
+//
+//===========================================
+
+#version 400
+
+//INPUT
+in vec3 colour;
+
+//OUTPUT
+out vec4 outputColour;
+
+//UNIFORM Variables
+
+//================== PIXEL SHADER ==============
+void main(void)
+{
+	outputColour = vec4(colour, 1.0f);
+}
