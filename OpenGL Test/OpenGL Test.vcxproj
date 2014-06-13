@@ -41,7 +41,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\Bin\glew-1.10.0\include;C:\Program Files %28x86%29\Visual Leak Detector\include;C:\Program Files %28x86%29\glut-3.7\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Christopher\Desktop\GLFramework\Bin\Tools\rapidxml-1.13;..\Bin\glew-1.10.0\include;C:\Program Files %28x86%29\Visual Leak Detector\include;C:\Program Files %28x86%29\glut-3.7\include;$(IncludePath)</IncludePath>
     <LibraryPath>..\Bin\glew-1.10.0\lib\Release\Win32;C:\Users\user\Documents\Visual Studio 2010\Projects\OpenGL Framework\Bin\External Libraries\lpng162;C:\Program Files %28x86%29\Visual Leak Detector\lib\Win32;C:\Program Files %28x86%29\glut-3.7\lib;$(LibraryPath)</LibraryPath>
     <OutDir>..\Test\</OutDir>
     <IntDir>..\Obj\Debug\</IntDir>
@@ -51,7 +51,7 @@
     <LinkIncremental>false</LinkIncremental>
     <OutDir>..\Bin\</OutDir>
     <IntDir>..\Obj\Release\</IntDir>
-    <IncludePath>..\Bin\glew-1.10.0\include;C:\Program Files %28x86%29\Visual Leak Detector\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Christopher\Desktop\GLFramework\Bin\Tools\rapidxml-1.13;..\Bin\glew-1.10.0\include;C:\Program Files %28x86%29\Visual Leak Detector\include;$(IncludePath)</IncludePath>
     <LibraryPath>..\Bin\glew-1.10.0\lib\Release\Win32;C:\Program Files %28x86%29\Visual Leak Detector\lib\Win32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -100,6 +100,9 @@
     <ClInclude Include="consolewindow.h" />
     <ClInclude Include="defines.h" />
     <ClInclude Include="directionallight.h" />
+    <ClInclude Include="editordefines.h" />
+    <ClInclude Include="resourcemanager.h" />
+    <ClInclude Include="scenehierarchy.h" />
     <ClInclude Include="framebufferobject.h" />
     <ClInclude Include="gameobject.h" />
     <ClInclude Include="helicopter.h" />
@@ -127,6 +130,8 @@
     <ClCompile Include="clock.cpp" />
     <ClCompile Include="consolewindow.cpp" />
     <ClCompile Include="directionallight.cpp" />
+    <ClCompile Include="resourcemanager.cpp" />
+    <ClCompile Include="scenehierarchy.cpp" />
     <ClCompile Include="framebufferobject.cpp" />
     <ClCompile Include="gameobject.cpp" />
     <ClCompile Include="helicopter.cpp" />

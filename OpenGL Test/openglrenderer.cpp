@@ -23,6 +23,8 @@
 #include "framebufferobject.h"
 #include "helicopter.h"
 #include "ship.h"
+#include "scenehierarchy.h"
+#include "resourcemanager.h"
 
 // This Include
 #include "openglrenderer.h"
@@ -34,27 +36,39 @@
 // Implementation
 
 COpenGLRenderer::COpenGLRenderer()
-:	m_hWindow(0)
-,	m_hDevContext(0)
-,	m_fFOV(0)
-,	m_fAspectRatio(0)
-,	m_pPerspectiveCamera(0)
-,	m_pModelCollection(0)
-,	m_pColourShader(0)
-,	m_pInput(0)
-,	m_pTextureCollection(0)
-,	m_pConsole(0)
-,	m_pLightManager(0)
-,	m_pTerrain(0)
-,	m_fGameTime(0.0f)
-,	m_pFrameBuffer(0)
-,	m_pHelicopter(0)
-,	m_pShip(0)
+: m_hWindow(0)
+, m_hDevContext(0)
+, m_fFOV(0)
+, m_fAspectRatio(0)
+, m_pPerspectiveCamera(0)
+, m_pModelCollection(0)
+, m_pColourShader(0)
+, m_pInput(0)
+, m_pTextureCollection(0)
+, m_pConsole(0)
+, m_pLightManager(0)
+, m_pTerrain(0)
+, m_fGameTime(0.0f)
+, m_pFrameBuffer(0)
+, m_pHelicopter(0)
+, m_pShip(0)
+, m_pSceneHierarchy(0)
+, m_pResourceManager(0)
 {
 
 }
 COpenGLRenderer::~COpenGLRenderer()
 {
+	if (m_pResourceManager)
+	{
+		delete m_pResourceManager;
+		m_pResourceManager = 0;
+	}
+	if (m_pSceneHierarchy)
+	{
+		delete m_pSceneHierarchy;
+		m_pSceneHierarchy = 0;
+	}
 	//Delete frame buffers
 	if(m_pFrameBuffer)
 	{
@@ -143,8 +157,19 @@ COpenGLRenderer::Initialise(HWND _hWnd, int _iWindowWidth, int _iWindowHeight, T
 	//Initialise OpenGL 
 	SetupOpenGL(_hWnd);
 
+	//Interpret level editor data
+	m_pSceneHierarchy = new CSceneHierarchy();
+	m_pSceneHierarchy->Initialise("Data/Resources.xml", "Data/Prefabs.xml");
+	m_pSceneHierarchy->LoadSceneFromXML("Data/Levels/level1.xml");
+	
+	
 	//Load the shader files
 	LoadShaders();
+	//Load resources from editor data
+	m_pResourceManager = new CResourceManager();
+	m_pResourceManager->Initialise(this, m_pSceneHierarchy, m_pColourShader);
+	
+	
 	//Load the texture files
 	LoadTextures();
 	//Add lights to lightmanager

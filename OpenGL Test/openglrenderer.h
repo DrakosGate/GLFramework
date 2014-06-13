@@ -40,6 +40,8 @@ class CTerrain;
 class CFrameBufferObject;
 class CHelicopter;
 class CShip;
+class CSceneHierarchy;
+class CResourceManager;
 
 class COpenGLRenderer : public IRenderer
 {
@@ -73,6 +75,9 @@ public:
 
 //Member variables
 private:
+	CSceneHierarchy* m_pSceneHierarchy;
+	CResourceManager* m_pResourceManager;
+
 	//Scene objects
 	CHelicopter* m_pHelicopter;
 	CShip* m_pShip;
