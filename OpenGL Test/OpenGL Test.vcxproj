@@ -41,18 +41,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Christopher\Desktop\GLFramework\Bin\Tools\rapidxml-1.13;..\Bin\glew-1.10.0\include;C:\Program Files %28x86%29\Visual Leak Detector\include;C:\Program Files %28x86%29\glut-3.7\include;$(IncludePath)</IncludePath>
+    <IncludePath>..\Bin\Tools\rapidxml-1.13;..\Bin\glew-1.10.0\include;C:\Program Files %28x86%29\Visual Leak Detector\include;C:\Program Files %28x86%29\glut-3.7\include;$(IncludePath)</IncludePath>
     <LibraryPath>..\Bin\glew-1.10.0\lib\Release\Win32;C:\Users\user\Documents\Visual Studio 2010\Projects\OpenGL Framework\Bin\External Libraries\lpng162;C:\Program Files %28x86%29\Visual Leak Detector\lib\Win32;C:\Program Files %28x86%29\glut-3.7\lib;$(LibraryPath)</LibraryPath>
     <OutDir>..\Test\</OutDir>
     <IntDir>..\Obj\Debug\</IntDir>
-    <SourcePath>$(SourcePath)</SourcePath>
+    <SourcePath>C:\Users\Christopher\Desktop\GLFramework\Bin\Tools\LodePNG;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>..\Bin\</OutDir>
     <IntDir>..\Obj\Release\</IntDir>
-    <IncludePath>C:\Users\Christopher\Desktop\GLFramework\Bin\Tools\rapidxml-1.13;..\Bin\glew-1.10.0\include;C:\Program Files %28x86%29\Visual Leak Detector\include;$(IncludePath)</IncludePath>
+    <IncludePath>..\Bin\Tools\rapidxml-1.13;..\Bin\glew-1.10.0\include;C:\Program Files %28x86%29\Visual Leak Detector\include;$(IncludePath)</IncludePath>
     <LibraryPath>..\Bin\glew-1.10.0\lib\Release\Win32;C:\Program Files %28x86%29\Visual Leak Detector\lib\Win32;$(LibraryPath)</LibraryPath>
+    <SourcePath>C:\Users\Christopher\Desktop\GLFramework\Bin\Tools\LodePNG;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -94,6 +95,7 @@
     <None Include="..\Bin\Shaders\texture.vs" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Bin\Tools\LodePNG\lodepng.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="chrismaths.h" />
     <ClInclude Include="clock.h" />
@@ -125,6 +127,7 @@
     <ClInclude Include="wirecloth.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Bin\Tools\LodePNG\lodepng.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="chrismaths.cpp" />
     <ClCompile Include="clock.cpp" />

@@ -128,6 +128,7 @@ public:
 	void AddObject(rapidxml::xml_node<>* _pNode, TEntityNode* _pParentNode);
 	//Retrieve from hierarchy
 	TEntityNode* GetRootNode() const;
+	TPrefabDefinition* GetPrefabDefinition(std::string& _rPrefabName);
 	std::string& GetResourceFilename(EResourceType _eResourceType, int _iIndex);
 	std::string& GetResourceFilename(EResourceType _eResourceType, std::string& _sResourceName);
 

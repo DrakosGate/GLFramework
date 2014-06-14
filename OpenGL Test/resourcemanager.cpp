@@ -97,6 +97,9 @@ CResourceManager::Initialise(COpenGLRenderer* _pRenderer, CSceneHierarchy* _pSce
 		pNewModel->SetScale(TVector3(1.0f, 1.0f, 1.0f));
 
 		m_mapModels[sModelName] = pNewModel;
+
+		delete[] pcFilename;
+		pcFilename = 0;
 	}
 	
 	//Loop through textures
@@ -118,6 +121,9 @@ CResourceManager::Initialise(COpenGLRenderer* _pRenderer, CSceneHierarchy* _pSce
 		pNewPoolEntry->pTexture = pNewTexture;
 		pNewPoolEntry->sName = sTextureName;
 		m_TexturePool.push_back(pNewPoolEntry);
+
+		delete[] pcFilename;
+		pcFilename = 0;
 	}
 	
 	//Loop through animations
@@ -153,9 +159,9 @@ CResourceManager::Initialise(COpenGLRenderer* _pRenderer, CSceneHierarchy* _pSce
 *
 */
 CModel* 
-CResourceManager::GetModel(std::string& _pcModelName) const
+CResourceManager::GetModel(std::string& _pcModelName) 
 {
-	return (m_mapModels.find(_pcModelName)->second);
+	return (m_mapModels[_pcModelName]);
 }
 /**
 *

@@ -46,7 +46,7 @@ public:
 
 	virtual void Initialise(COpenGLRenderer* _pRenderer, CSceneHierarchy* _pSceneHierarchy, CShader* _pObjectShader);
 	
-	CModel*  GetModel(std::string& _pcModelName) const;
+	CModel*  GetModel(std::string& _pcModelName) ;
 	CTexture* GetTexture(std::string& _pcTextureName) const;
 	int GetTextureID(std::string& _pcTextureName) const;
 	

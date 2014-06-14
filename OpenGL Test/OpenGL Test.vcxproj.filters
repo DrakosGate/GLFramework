@@ -31,6 +31,12 @@
     <Filter Include="Source Files\Engine">
       <UniqueIdentifier>{5f093935-63ec-4e1b-9059-76c216f6b0b0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Tools">
+      <UniqueIdentifier>{623f6732-26b0-4ab8-962a-c87b02882a98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tools">
+      <UniqueIdentifier>{ace8bd5a-9131-4599-86e5-e301580ddc9f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Bin\Shaders\colour.ps">
@@ -140,6 +146,9 @@
     <ClInclude Include="scenehierarchy.h">
       <Filter>Header Files\Editor</Filter>
     </ClInclude>
+    <ClInclude Include="..\Bin\Tools\LodePNG\lodepng.h">
+      <Filter>Header Files\Tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="terrain.cpp">
@@ -216,6 +225,9 @@
     </ClCompile>
     <ClCompile Include="scenehierarchy.cpp">
       <Filter>Source Files\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Bin\Tools\LodePNG\lodepng.cpp">
+      <Filter>Source Files\Tools</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

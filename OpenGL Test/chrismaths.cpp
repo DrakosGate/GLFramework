@@ -111,7 +111,16 @@ namespace NMatrix
 	void 
 	Transformation(TMatrix& _rMat, TVector3& _rPosition, TVector3& _rScale, TVector3& _rRotation)
 	{
-		RotateYawPitchRoll(_rMat, _rRotation.fZ, _rRotation.fY, _rRotation.fX);
+		TMatrix scaleMat;
+		NMatrix::Identity(scaleMat);
+		scaleMat.m[scaleMat.Index(0, 0)] *= _rScale.fX;
+		scaleMat.m[scaleMat.Index(1, 1)] *= _rScale.fY;
+		scaleMat.m[scaleMat.Index(2, 2)] *= _rScale.fZ;
+		
+		TMatrix rotMat;
+		RotateYawPitchRoll(rotMat, _rRotation.fZ, _rRotation.fY, _rRotation.fX);
+
+		_rMat = rotMat * scaleMat;
 		_rMat.m[12] = _rPosition.fX;
 		_rMat.m[13] = _rPosition.fY;
 		_rMat.m[14] = _rPosition.fZ;

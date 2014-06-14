@@ -15,6 +15,8 @@
 // Library Includes
 #include <iostream>
 #include <stdio.h>
+#include <vector>
+#include "../Bin/Tools/LodePNG/lodepng.h"
 
 // Local Includes
 #include "openglrenderer.h"
@@ -71,7 +73,81 @@ CTexture::~CTexture()
 bool 
 CTexture::Initialise(COpenGLRenderer* _pRenderer, char* _pcFilename, unsigned int _uiTextureUnit)
 {
-	bool bResult = LoadFromTarga(_pRenderer, _pcFilename, _uiTextureUnit);
+	bool bResult = true;
+	int iFilenameLength = strlen(_pcFilename);
+	//TGA
+	if (_pcFilename[iFilenameLength - 3] == 't' && _pcFilename[iFilenameLength - 2] == 'g' && _pcFilename[iFilenameLength - 1] == 'a')
+	{
+		bResult = LoadFromTarga(_pRenderer, _pcFilename, _uiTextureUnit);
+	}
+	//PNG
+	else if (_pcFilename[iFilenameLength - 3] == 'p' && _pcFilename[iFilenameLength - 2] == 'n' && _pcFilename[iFilenameLength - 1] == 'g')
+	{
+		bResult = LoadFromPNG(_pRenderer, _pcFilename, _uiTextureUnit);
+	}
+	return bResult;
+}
+/**
+*
+* CTexture class LoadFromTarga
+*
+* @author Christopher Howlett
+* @param _pRenderer OpenGLRenderer
+* @param _pcFilename texture filename
+* @param _uiTextureUnit Texture ID
+* @return Returns success
+*
+*/
+bool
+CTexture::LoadFromPNG(COpenGLRenderer* _pRenderer, char* _pcFilename, unsigned int _uiTextureUnit)
+{
+	bool bResult = true;
+	
+	std::vector<unsigned char> imageData;
+	unsigned int iWidth;
+	unsigned int iHeight;
+	lodepng::decode(imageData, iWidth, iHeight, _pcFilename);
+
+	//Copy data to a buffer
+	unsigned char* pcBuffer = new unsigned char[imageData.size()];
+	for (unsigned int iChar = 0; iChar < imageData.size(); ++iChar)
+	{
+		pcBuffer[iChar] = imageData[iChar];
+	}
+
+	//Setup openGL Texture
+	_pRenderer->glActiveTexture(GL_TEXTURE0 + _uiTextureUnit);
+	glGenTextures(	1, &m_uiTextureID);
+	glBindTexture(	GL_TEXTURE_2D, m_uiTextureID); //Bind texture to ID
+	glTexImage2D(	GL_TEXTURE_2D,
+					0,
+					GL_RGBA,
+					static_cast<int>(iWidth),
+					static_cast<int>(iHeight),
+					0,
+					GL_BGRA,
+					GL_UNSIGNED_BYTE,
+					pcBuffer);
+
+	//Set to Wrap texture
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	//Set texture filtering
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+	//Generate mipmaps
+	_pRenderer->glGenerateMipmap(GL_TEXTURE_2D);
+
+	if (m_uiTextureID == 0)
+	{
+		printf("Failed to load PNG: %s\n", _pcFilename); 
+		bResult = false;
+	}
+	delete[] pcBuffer;
+	pcBuffer = 0;
+
 	return bResult;
 }
 /**
@@ -156,4 +232,17 @@ CTexture::LoadFromTarga(COpenGLRenderer* _pRenderer, char* _pcFilename, unsigned
 	delete[] pData;
 	pData = 0;
 	return bResult;
+}
+/**
+*
+* CTexture class GetTextureID
+*
+* @author Christopher Howlett
+* @return Returns the texture ID
+*
+*/
+unsigned int
+CTexture::GetTextureID() const
+{
+	return m_uiTextureID;
 }

@@ -46,16 +46,6 @@
 		<colour r="1.0f" g="1.0f" b="1.0f" a="1.0f"/>
 	</child>
 	<child>
-		<type>PlayerCursor</type>
-		<position x="4.11" y="-0.25" z="558.15"/>
-		<scale x="-0.00" y="-0.00" z="-0.00"/>
-		<rotation x="0.00" y="3.07" z="0.00"/>
-		<colour r="1.0f" g="1.0f" b="1.0f" a="1.0f"/>
-		<light>
-			<type>point</type>
-		</light>
-	</child>
-	<child>
 		<type>lamppost</type>
 		<position x="-1.01" y="-0.00" z="2.60"/>
 		<scale x="1.00" y="1.00" z="1.00"/>

@@ -36,8 +36,11 @@ public:
 	~CTexture();
 
 	bool Initialise(COpenGLRenderer* _pRenderer, char* _pcFilename, unsigned int _uiTextureUnit);
+	bool LoadFromPNG(COpenGLRenderer* _pRenderer, char* _pcFilename, unsigned int _uiTextureUnit);
 	bool LoadFromTarga(COpenGLRenderer* _pRenderer, char* _pcFilename, unsigned int _uiTextureUnit);
 	
+	unsigned int GetTextureID() const;
+
 private:
 	CTexture(const CTexture& _krInstanceToCopy);
 	const CTexture& operator =(const CTexture& _krInstanceToCopy);

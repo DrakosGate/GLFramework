@@ -290,6 +290,11 @@ CSceneHierarchy::GetRootNode() const
 {
 	return m_pRootNode;
 }
+TPrefabDefinition*
+CSceneHierarchy::GetPrefabDefinition(std::string& _rPrefabName)
+{
+	return ( m_mapPrefabs[_rPrefabName] );
+}
 /*
 *
 * CSceneHierarchy Adds an object to the node hierarchy

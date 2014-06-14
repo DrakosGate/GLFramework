@@ -226,6 +226,30 @@ COpenGLRenderer::Draw(CCamera* _pCurrentCamera)
 	m_pColourShader->SetShaderInteger(this, "gNormalMapTexture", m_pModelCollection[MODEL_SHIP].GetNormalMap());
 	m_pColourShader->SetShaderInteger(this, "gShaderTexture", m_pModelCollection[MODEL_SHIP].GetTextureType());
 	m_pShip->Draw(this, _pCurrentCamera, m_pColourShader);	
+
+	//Draw editor objects
+	TEntityNode* pRootNode = m_pSceneHierarchy->GetRootNode();
+	for (unsigned int iChild = 0; iChild < pRootNode->vecChildren.size(); ++iChild)
+	{
+		TEntityNode* pNode = pRootNode->vecChildren[iChild];
+		TPrefabDefinition* pPrefab = m_pSceneHierarchy->GetPrefabDefinition(pNode->tEntity.sPrefabName);
+		CModel* pModel = m_pResourceManager->GetModel( pPrefab->sModel );
+		if (pModel)
+		{
+			CTexture* pTexture = m_pResourceManager->GetTexture(pPrefab->sTexture);
+
+			TMatrix worldMat;
+			float fWorldScale = 0.1f;
+			NMatrix::Transformation(worldMat,
+									TVector3(pNode->tEntity.vecPosition[0], pNode->tEntity.vecPosition[1], pNode->tEntity.vecPosition[2]),
+									TVector3(pNode->tEntity.vecScale[0], pNode->tEntity.vecScale[1], pNode->tEntity.vecScale[2]) * fWorldScale,
+									TVector3(pNode->tEntity.vecRotation[0], pNode->tEntity.vecRotation[1], pNode->tEntity.vecRotation[2]));
+			m_pColourShader->SetShaderInteger(this, "gShaderTexture", pTexture->GetTextureID());
+			m_pColourShader->SetShaderMatrix(this, "worldMatrix", worldMat.m);
+
+			pModel->Draw(this, _pCurrentCamera);
+		}
+	}
 }
 void 
 COpenGLRenderer::PostDraw()
