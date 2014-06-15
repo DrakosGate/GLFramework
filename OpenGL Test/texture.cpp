@@ -145,6 +145,11 @@ CTexture::LoadFromPNG(COpenGLRenderer* _pRenderer, char* _pcFilename, unsigned i
 		printf("Failed to load PNG: %s\n", _pcFilename); 
 		bResult = false;
 	}
+	else
+	{
+		printf("Loaded Texture: %s (%i x %i)\n", _pcFilename, iWidth, iHeight);
+		m_bIsLoaded = true;
+	}
 	delete[] pcBuffer;
 	pcBuffer = 0;
 

@@ -85,7 +85,7 @@ CResourceManager::Initialise(COpenGLRenderer* _pRenderer, CSceneHierarchy* _pSce
 	{
 		CModel* pNewModel = new CModel();
 		std::string sModelName = _pSceneHierarchy->GetResourceName(RESOURCE_MODEL, iModel);
-		std::string sFilename = _pSceneHierarchy->GetResourceFilename(RESOURCE_MODEL, iModel);
+		std::string sFilename = _pSceneHierarchy->GetResourceFilename(RESOURCE_MODEL, sModelName);
 		//Copy filename to buffer
 		int iStrLength = sFilename.size() + 1;
 		char* pcFilename = new char[iStrLength];
@@ -107,7 +107,7 @@ CResourceManager::Initialise(COpenGLRenderer* _pRenderer, CSceneHierarchy* _pSce
 	for (unsigned int iTexture = 0; iTexture < _pSceneHierarchy->GetResourceCount(RESOURCE_TEXTURE); ++iTexture)
 	{
 		std::string sTextureName = _pSceneHierarchy->GetResourceName(RESOURCE_TEXTURE, iTexture);
-		std::string sTextureFilename = _pSceneHierarchy->GetResourceFilename(RESOURCE_TEXTURE, iTexture);
+		std::string sTextureFilename = _pSceneHierarchy->GetResourceFilename(RESOURCE_TEXTURE, sTextureName);
 		//Concatenate model prefix and model filename
 		int iStrLength = sTextureFilename.size() + 1;
 		char* pcFilename = new char[iStrLength];

@@ -79,11 +79,11 @@ private:
 	CResourceManager* m_pResourceManager;
 
 	//Scene objects
-	CHelicopter* m_pHelicopter;
-	CShip* m_pShip;
+	//CHelicopter* m_pHelicopter;
+	//CShip* m_pShip;
 
 	//Models
-	CModel* m_pModelCollection;
+	//CModel* m_pModelCollection;
 	CModel* m_pScreenSurface;
 	CTerrain* m_pTerrain;
 

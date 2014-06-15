@@ -41,7 +41,7 @@ COpenGLRenderer::COpenGLRenderer()
 , m_fFOV(0)
 , m_fAspectRatio(0)
 , m_pPerspectiveCamera(0)
-, m_pModelCollection(0)
+//, m_pModelCollection(0)
 , m_pColourShader(0)
 , m_pInput(0)
 , m_pTextureCollection(0)
@@ -50,8 +50,8 @@ COpenGLRenderer::COpenGLRenderer()
 , m_pTerrain(0)
 , m_fGameTime(0.0f)
 , m_pFrameBuffer(0)
-, m_pHelicopter(0)
-, m_pShip(0)
+//, m_pHelicopter(0)
+//, m_pShip(0)
 , m_pSceneHierarchy(0)
 , m_pResourceManager(0)
 {
@@ -81,21 +81,21 @@ COpenGLRenderer::~COpenGLRenderer()
 		m_pScreenSurface = 0;
 	}
 	//Delete game objects
-	if(m_pShip)
-	{
-		delete m_pShip;
-		m_pShip = 0;
-	}
-	if(m_pHelicopter)
-	{
-		delete m_pHelicopter;
-		m_pHelicopter = 0;
-	}
-	if(m_pModelCollection)
-	{
-		delete[] m_pModelCollection;
-		m_pModelCollection = 0;
-	}
+	//if(m_pShip)
+	//{
+	//	delete m_pShip;
+	//	m_pShip = 0;
+	//}
+	//if(m_pHelicopter)
+	//{
+	//	delete m_pHelicopter;
+	//	m_pHelicopter = 0;
+	//}
+	//if(m_pModelCollection)
+	//{
+	//	delete[] m_pModelCollection;
+	//	m_pModelCollection = 0;
+	//}
 	if(m_pPerspectiveCamera)
 	{
 		delete m_pPerspectiveCamera;
@@ -197,7 +197,7 @@ COpenGLRenderer::Draw(CCamera* _pCurrentCamera)
 	m_pColourShader->SetShaderMatrix(this, "viewMatrix", _pCurrentCamera->GetViewMatrix().m);
 	m_pColourShader->SetShaderMatrix(this, "projectionMatrix", _pCurrentCamera->GetProjectionMatrix().m);
 	
-	DrawLine(m_pShip->GetPosition(), m_pShip->GetPosition() + (m_pShip->GetForward() * 5.0f), TVector3(1.0f, 0.0f, 0.0f));
+//	DrawLine(m_pShip->GetPosition(), m_pShip->GetPosition() + (m_pShip->GetForward() * 5.0f), TVector3(1.0f, 0.0f, 0.0f));
 
 	//Camera variables
 	m_pColourShader->SetShaderVector3(this, "gCameraPosition", _pCurrentCamera->GetPosition());
@@ -212,23 +212,24 @@ COpenGLRenderer::Draw(CCamera* _pCurrentCamera)
 	m_pColourShader->SetShaderMatrix(this, "worldMatrix", m_pTerrain->GetWorldMatrix()->m);
 	m_pTerrain->Draw(this, _pCurrentCamera);
 	// specific variables
-	if(m_pModelCollection[MODEL_LOOP].GetNormalMap() != TEXTURE_INVALID)
-	{
-		m_pColourShader->SetShaderInteger(this, "gNormalMapTexture", m_pModelCollection->GetNormalMap());
-	}
-	m_pColourShader->SetShaderInteger(this, "gShaderTexture", m_pModelCollection[MODEL_LOOP].GetTextureType());
-	m_pColourShader->SetShaderMatrix(this, "worldMatrix", m_pModelCollection[MODEL_LOOP].GetWorldMatrix()->m);
-	m_pModelCollection[MODEL_LOOP].Draw(this, _pCurrentCamera);
-
-	m_pHelicopter->Draw(this, _pCurrentCamera, m_pColourShader);
-
-	//Ship specific variables
-	m_pColourShader->SetShaderInteger(this, "gNormalMapTexture", m_pModelCollection[MODEL_SHIP].GetNormalMap());
-	m_pColourShader->SetShaderInteger(this, "gShaderTexture", m_pModelCollection[MODEL_SHIP].GetTextureType());
-	m_pShip->Draw(this, _pCurrentCamera, m_pColourShader);	
+	//if(m_pModelCollection[MODEL_LOOP].GetNormalMap() != TEXTURE_INVALID)
+	//{
+	//	m_pColourShader->SetShaderInteger(this, "gNormalMapTexture", m_pModelCollection->GetNormalMap());
+	//}
+	//m_pColourShader->SetShaderInteger(this, "gShaderTexture", m_pModelCollection[MODEL_LOOP].GetTextureType());
+	//m_pColourShader->SetShaderMatrix(this, "worldMatrix", m_pModelCollection[MODEL_LOOP].GetWorldMatrix()->m);
+	//m_pModelCollection[MODEL_LOOP].Draw(this, _pCurrentCamera);
+	//
+	//m_pHelicopter->Draw(this, _pCurrentCamera, m_pColourShader);
+	//
+	////Ship specific variables
+	//m_pColourShader->SetShaderInteger(this, "gNormalMapTexture", m_pModelCollection[MODEL_SHIP].GetNormalMap());
+	//m_pColourShader->SetShaderInteger(this, "gShaderTexture", m_pModelCollection[MODEL_SHIP].GetTextureType());
+	//m_pShip->Draw(this, _pCurrentCamera, m_pColourShader);	
 
 	//Draw editor objects
 	TEntityNode* pRootNode = m_pSceneHierarchy->GetRootNode();
+	m_pColourShader->SetShaderInteger(this, "gNormalMapTexture", m_pTextureCollection[TEXTURE_STONENORMAL].GetTextureID()); 
 	for (unsigned int iChild = 0; iChild < pRootNode->vecChildren.size(); ++iChild)
 	{
 		TEntityNode* pNode = pRootNode->vecChildren[iChild];
@@ -262,15 +263,16 @@ COpenGLRenderer::Process(float _fDeltaTick)
 	ProcessInput();
 
 	m_fGameTime += _fDeltaTick;
-	m_pModelCollection[MODEL_LOOP].Process(_fDeltaTick);
+//	m_pModelCollection[MODEL_LOOP].Process(_fDeltaTick);
 
 	m_pTerrain->Process(_fDeltaTick);
 	//m_pHelicopter->SetPosition(TVector3(m_pInput->fMouseX, m_pInput->fMouseY, 0.0f));
-	m_pHelicopter->Process(_fDeltaTick);
+	//m_pHelicopter->Process(_fDeltaTick);
 	//m_pHelicopter->ProcessInput(_fDeltaTick);
-	m_pShip->ProcessInput(_fDeltaTick);
-	m_pShip->Process(_fDeltaTick);
+	//m_pShip->ProcessInput(_fDeltaTick);
+	//m_pShip->Process(_fDeltaTick);
 	m_pLightManager->GetSpot(0)->ProcessParent(_fDeltaTick);
+	m_pLightManager->GetPoint(0)->SetPosition(m_pLightManager->GetPoint(0)->GetPosition() + TVector3(0.0f, sinf(m_fGameTime), 0.0f));
 
 	m_pPerspectiveCamera->Process(_fDeltaTick);
 	m_pPerspectiveCamera->ProcessInput(_fDeltaTick);
@@ -283,12 +285,12 @@ COpenGLRenderer::ProcessInput()
 		if(m_bIsFirstPerson)
 		{
 			m_bIsFirstPerson = false;
-			m_pPerspectiveCamera->SetParent(m_pShip, &TVector3(0.0f, 0.0f, 0.23f)); //First person
+			//m_pPerspectiveCamera->SetParent(m_pShip, &TVector3(0.0f, 0.0f, 0.23f)); //First person
 		}
 		else
 		{
 			m_bIsFirstPerson = true;
-			m_pPerspectiveCamera->SetParent(m_pShip, &TVector3(0.0f, 0.8f, -4.0f)); //Third person
+			//m_pPerspectiveCamera->SetParent(m_pShip, &TVector3(0.0f, 0.8f, -4.0f)); //Third person
 		}
 	}
 }
@@ -356,17 +358,17 @@ COpenGLRenderer::CreateEntities()
 	m_pTerrain->LoadTerrain(10, 50.0f);
 	m_pTerrain->SetNormalMap(TEXTURE_FLOORNORMAL);
 
-	m_pHelicopter = new CHelicopter();
-	m_pHelicopter->Initialise(&m_pModelCollection[MODEL_HELICHASSIS], &m_pModelCollection[MODEL_HELIROTOR], m_pInput);
-	m_pHelicopter->SetPosition(TVector3(0.0f, 1.0f, -10.0f));
-	
-	//m_pPerspectiveCamera->SetParent(m_pHelicopter, &TVector3(0.0f, 0.8f, -4.0f)); //Third person
-	//m_pPerspectiveCamera->SetParent(m_pHelicopter, &TVector3(0.0f, 0.2f, 0.3f)); //First person
-	m_pShip = new CShip();
-	m_pShip->Initialise(&m_pModelCollection[MODEL_SHIP], m_pInput);
-	m_pShip->SetPosition(TVector3(0.0f, 2.0f, -10.0f));
-	m_pLightManager->GetSpot(0)->SetParent(m_pShip, &TVector3(0.0f, 0.0f, 1.0f));
-	m_pPerspectiveCamera->SetParent(m_pShip, &TVector3(0.0f, 0.8f, -4.0f)); //Third person
+	//m_pHelicopter = new CHelicopter();
+	//m_pHelicopter->Initialise(&m_pModelCollection[MODEL_HELICHASSIS], &m_pModelCollection[MODEL_HELIROTOR], m_pInput);
+	//m_pHelicopter->SetPosition(TVector3(0.0f, 1.0f, -10.0f));
+	//
+	////m_pPerspectiveCamera->SetParent(m_pHelicopter, &TVector3(0.0f, 0.8f, -4.0f)); //Third person
+	////m_pPerspectiveCamera->SetParent(m_pHelicopter, &TVector3(0.0f, 0.2f, 0.3f)); //First person
+	//m_pShip = new CShip();
+	//m_pShip->Initialise(&m_pModelCollection[MODEL_SHIP], m_pInput);
+	//m_pShip->SetPosition(TVector3(0.0f, 2.0f, -10.0f));
+	//m_pLightManager->GetSpot(0)->SetParent(m_pShip, &TVector3(0.0f, 0.0f, 1.0f));
+	//m_pPerspectiveCamera->SetParent(m_pShip, &TVector3(0.0f, 0.8f, -4.0f)); //Third person
 	//m_pPerspectiveCamera->SetParent(m_pShip, &TVector3(0.0f, 0.0f, 0.2f)); //First person
 
 	//Create Frame Buffer Objects
@@ -378,28 +380,28 @@ void
 COpenGLRenderer::CreateModels()
 {
 	//Initialise all models used in this scene
-	m_pModelCollection = new CModel[MODEL_MAX];
-
-	m_pModelCollection[MODEL_LOOP].Initialise(this, TVector3(0.0f, 0.0f, 0.0f), 10.0f, TEXTURE_STONE, m_pColourShader);
-	m_pModelCollection[MODEL_LOOP].LoadFromOBJ("Assets/checkerLoop.obj");
-	m_pModelCollection[MODEL_LOOP].SetNormalMap(TEXTURE_STONENORMAL);
-	m_pModelCollection[MODEL_LOOP].SetScale(TVector3(10.0f, 10.0f, 10.0f));
-
-	m_pModelCollection[MODEL_HELICHASSIS].Initialise(this, TVector3(0.0f, 0.0f, 0.0f), 1.0f, TEXTURE_STONE, m_pColourShader);
-	m_pModelCollection[MODEL_HELICHASSIS].LoadFromOBJ("Assets/helicopter.obj");
-	m_pModelCollection[MODEL_HELICHASSIS].SetNormalMap(TEXTURE_STONENORMAL);
-
-	m_pModelCollection[MODEL_HELIROTOR].Initialise(this, TVector3(0.0f, 0.0f, 0.0f), 1.0f, TEXTURE_STONE, m_pColourShader);
-	m_pModelCollection[MODEL_HELIROTOR].LoadFromOBJ("Assets/rotor.obj");
-	m_pModelCollection[MODEL_HELIROTOR].SetNormalMap(TEXTURE_STONENORMAL);
-
-	m_pModelCollection[MODEL_SHIP].Initialise(this, TVector3(0.0f, 0.0f, 0.0f), 1.0f, TEXTURE_SHIP, m_pColourShader);
-	m_pModelCollection[MODEL_SHIP].LoadFromOBJ("Assets/ship.obj");
-	m_pModelCollection[MODEL_SHIP].SetNormalMap(TEXTURE_SHIPNORMAL);
-
-	m_pModelCollection[MODEL_CUBE].Initialise(this, TVector3(0.0f, 0.0f, 0.0f), 1.0f, TEXTURE_STONE, m_pColourShader);
-	m_pModelCollection[MODEL_CUBE].LoadFromOBJ("Assets/cube.obj");
-	m_pModelCollection[MODEL_CUBE].SetNormalMap(TEXTURE_STONENORMAL);
+	//m_pModelCollection = new CModel[MODEL_MAX];
+	//
+	//m_pModelCollection[MODEL_LOOP].Initialise(this, TVector3(0.0f, 0.0f, 0.0f), 10.0f, TEXTURE_STONE, m_pColourShader);
+	//m_pModelCollection[MODEL_LOOP].LoadFromOBJ("Assets/checkerLoop.obj");
+	//m_pModelCollection[MODEL_LOOP].SetNormalMap(TEXTURE_STONENORMAL);
+	//m_pModelCollection[MODEL_LOOP].SetScale(TVector3(10.0f, 10.0f, 10.0f));
+	//
+	//m_pModelCollection[MODEL_HELICHASSIS].Initialise(this, TVector3(0.0f, 0.0f, 0.0f), 1.0f, TEXTURE_STONE, m_pColourShader);
+	//m_pModelCollection[MODEL_HELICHASSIS].LoadFromOBJ("Assets/helicopter.obj");
+	//m_pModelCollection[MODEL_HELICHASSIS].SetNormalMap(TEXTURE_STONENORMAL);
+	//
+	//m_pModelCollection[MODEL_HELIROTOR].Initialise(this, TVector3(0.0f, 0.0f, 0.0f), 1.0f, TEXTURE_STONE, m_pColourShader);
+	//m_pModelCollection[MODEL_HELIROTOR].LoadFromOBJ("Assets/rotor.obj");
+	//m_pModelCollection[MODEL_HELIROTOR].SetNormalMap(TEXTURE_STONENORMAL);
+	//
+	//m_pModelCollection[MODEL_SHIP].Initialise(this, TVector3(0.0f, 0.0f, 0.0f), 1.0f, TEXTURE_SHIP, m_pColourShader);
+	//m_pModelCollection[MODEL_SHIP].LoadFromOBJ("Assets/ship.obj");
+	//m_pModelCollection[MODEL_SHIP].SetNormalMap(TEXTURE_SHIPNORMAL);
+	//
+	//m_pModelCollection[MODEL_CUBE].Initialise(this, TVector3(0.0f, 0.0f, 0.0f), 1.0f, TEXTURE_STONE, m_pColourShader);
+	//m_pModelCollection[MODEL_CUBE].LoadFromOBJ("Assets/cube.obj");
+	//m_pModelCollection[MODEL_CUBE].SetNormalMap(TEXTURE_STONENORMAL);
 	
 }
 void 
@@ -519,10 +521,10 @@ COpenGLRenderer::CreateLights()
 	//Directional
 	m_pLightManager->AddDirectional(TVector3(1.0f, -0.1f, 0.0f), TVector4(0.5f, 0.5f, 0.55f, 1.0f), 500.0f);
 	//Point
-	m_pLightManager->AddPoint(TVector3(-5.0f, 5.0f, 0.0f), TVector4(1.0f, 0.2f, 0.2f, 1.0f), TVector3(1.0f, 0.5f, 0.1f), 500.1f);
-	m_pLightManager->AddPoint(TVector3(5.0f, 5.0f, 0.0f), TVector4(0.2f, 1.0f, 0.2f, 1.0f), TVector3(1.0f, 0.5f, 0.1f), 500.1f);
+	m_pLightManager->AddPoint(TVector3(-5.0f, 5.0f, 0.0f), TVector4(1.0f, 0.2f, 0.2f, 1.0f), TVector3(1.0f, 0.5f, 0.1f), 50.1f);
+	m_pLightManager->AddPoint(TVector3(5.0f, 5.0f, 0.0f), TVector4(0.5f, 0.5f, 0.5f, 1.0f), TVector3(1.0f, 0.5f, 0.1f), 50.1f);
 	//Spot
-	m_pLightManager->AddSpot(TVector3(0.0f, 5.0f, -5.0f), TVector3(0.0f, 5.0f, 5.0f) * -1.0f, TVector4(3.0f, 3.0f, 5.0f, 1.0f), TVector3(1.0f, 0.5f, 0.2f), 0.6f, 500.0f);
+	m_pLightManager->AddSpot(TVector3(0.0f, 15.0f, 0.0f), TVector3(0.0f, -1.0f, 0.0f), TVector4(0.5f, 0.5f, 0.5f, 1.0f), TVector3(1.0f, 0.5f, 0.2f), 0.6f, 500.0f);
 	//m_pLightManager->AddSpot(TVector3(0.0f, 5.0f, 5.0f), TVector3(0.0f, 5.0f, 5.0f) * -1.0f, TVector4(0.2f, 0.2f, 0.2f, 1.0f), TVector3(1.0f, 0.5f, 0.2f), 0.5f, 50.0f);
 }
 void 
