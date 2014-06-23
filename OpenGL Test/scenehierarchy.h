@@ -15,6 +15,7 @@
 
 // Local Includes
 #include "editordefines.h"
+#include "defines.h"
 
 // Types
 enum EResourceType
@@ -25,38 +26,7 @@ enum EResourceType
 	RESOURCE_ANIMATION,
 	RESOURCE_MAX
 };
-struct TPrefabDefinition
-{
-	TPrefabDefinition(){}
-	TPrefabDefinition(	std::string& _rName, 
-						std::string& _rModel, 
-						std::string& _rTexture, 
-						float _pVecScale[3], 
-						std::string& _rAIType, 
-						bool _bIsAnimated, 
-						bool _bIsStatic)
-	{
-		sName = _rName;
-		sModel = _rModel;
-		sTexture = _rTexture;
-		for (int iScale = 0; iScale < 3; ++iScale)
-		{
-			vecScale[iScale] = _pVecScale[iScale];
-		}
-
-		sAIType = _rAIType;
-		bIsAnimated = _bIsAnimated;
-		bIsStatic = _bIsStatic;
-	}
-	std::string sName;
-	std::string sModel;
-	std::string sTexture;
-	float vecScale[3];
-
-	std::string sAIType;
-	bool bIsAnimated;
-	bool bIsStatic;
-};
+struct TSceneNode;
 struct TPrefabInstance
 {
 	std::string sPrefabName;
@@ -79,9 +49,44 @@ struct TLightInformation
 	std::string sLightType;
 	float vecPosition[3];
 };
-struct TEntityNode
+struct TPrefabDefinition
 {
-	TEntityNode()
+	TPrefabDefinition(){}
+	TPrefabDefinition(	std::string& _rName,
+						std::string& _rModel,
+						std::string& _rTexture,
+						float _pVecScale[3],
+						std::string& _rAIType,
+						bool _bIsAnimated,
+						bool _bIsStatic)
+	{
+		sName = _rName;
+		sModel = _rModel;
+		sTexture = _rTexture;
+		for (int iScale = 0; iScale < 3; ++iScale)
+		{
+			vecScale[iScale] = _pVecScale[iScale];
+		}
+
+		sAIType = _rAIType;
+		bIsAnimated = _bIsAnimated;
+		bIsStatic = _bIsStatic;
+	}
+	std::string sName;
+	std::string sModel;
+	std::string sTexture;
+	float vecScale[3];
+
+	std::string sAIType;
+	bool bIsAnimated;
+	bool bIsStatic;
+
+	std::vector<TSceneNode*> vecChildren;
+	std::vector<TLightInformation*> vecLights;
+};
+struct TSceneNode
+{
+	TSceneNode()
 	: pParent(0)
 	{
 	}
@@ -103,8 +108,8 @@ struct TEntityNode
 		vecLights.clear();
 	}
 	TPrefabInstance tEntity;
-	TEntityNode* pParent;
-	std::vector<TEntityNode*> vecChildren;
+	TSceneNode* pParent;
+	std::vector<TSceneNode*> vecChildren;
 	std::vector<TLightInformation*> vecLights;
 };
 
@@ -119,26 +124,29 @@ public:
 	CSceneHierarchy();
 	virtual ~CSceneHierarchy();
 
-	bool Initialise(char* _pcResourceFilename, char* _pcPrefabDefFilename);
+	bool Initialise(char* _pcResourceFilename);
 	//Load from file
-	void LoadResources(char* _pcXMLFilename);
-	void LoadPrefabDefinitions(char* _pcXMLFilename);
+	void LoadResources(rapidxml::xml_node<>* _pResourceNode);
+	void LoadPrefabDefinitions(rapidxml::xml_node<>* _pPrefabNode);
 	void LoadSceneFromXML(char* _pcXMLFilename);
 	//Add to hierarchy
-	void AddObject(rapidxml::xml_node<>* _pNode, TEntityNode* _pParentNode);
+	void AddObject(rapidxml::xml_node<>* _pNode, TSceneNode* _pParentNode);
 	//Retrieve from hierarchy
-	TEntityNode* GetRootNode() const;
-	TPrefabDefinition* GetPrefabDefinition(std::string& _rPrefabName);
+	TSceneNode* GetRootNode() const;
+
+	//Resource accessors
 	std::string& GetResourceFilename(EResourceType _eResourceType, int _iIndex);
 	std::string& GetResourceFilename(EResourceType _eResourceType, std::string& _sResourceName);
-
 	const std::string& GetResourceName(EResourceType _eResourceType, int _iIndex);
-
 	unsigned int GetResourceCount(EResourceType _eResourceType);
+	//Prefab accessors
+	TPrefabDefinition* GetPrefabDefinition(std::string& _rPrefabName);
+	TPrefabDefinition* GetPrefabDefinition(int _iIndex);
+	unsigned int GetPrefabCount() const;
 
 //Member variables
 private:
-	TEntityNode* m_pRootNode;
+	TSceneNode* m_pRootNode;
 	std::vector<std::string>* m_pResourceFilenames;
 	std::map<std::string, int>* m_pResourceIndexMap;
 

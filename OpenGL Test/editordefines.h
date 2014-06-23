@@ -15,6 +15,8 @@
 // Local Includes
 
 // Types
+#define SAFEDELETE(_object) { if(_object){ delete _object;_object = 0; } }
+
 template<class T> T ReadFromString(std::string _sInput)
 {
 	std::stringstream sStream;

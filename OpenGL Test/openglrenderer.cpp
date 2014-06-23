@@ -159,8 +159,8 @@ COpenGLRenderer::Initialise(HWND _hWnd, int _iWindowWidth, int _iWindowHeight, T
 
 	//Interpret level editor data
 	m_pSceneHierarchy = new CSceneHierarchy();
-	m_pSceneHierarchy->Initialise("Data/Resources.xml", "Data/Prefabs.xml");
-	m_pSceneHierarchy->LoadSceneFromXML("Data/Levels/level1.xml");
+	m_pSceneHierarchy->Initialise("Data/Resources.xml");
+	m_pSceneHierarchy->LoadSceneFromXML("Data/Levels/greattree.xml");
 	
 	
 	//Load the shader files
@@ -228,27 +228,30 @@ COpenGLRenderer::Draw(CCamera* _pCurrentCamera)
 	//m_pShip->Draw(this, _pCurrentCamera, m_pColourShader);	
 
 	//Draw editor objects
-	TEntityNode* pRootNode = m_pSceneHierarchy->GetRootNode();
+	TSceneNode* pRootNode = m_pSceneHierarchy->GetRootNode();
 	m_pColourShader->SetShaderInteger(this, "gNormalMapTexture", m_pTextureCollection[TEXTURE_STONENORMAL].GetTextureID()); 
 	for (unsigned int iChild = 0; iChild < pRootNode->vecChildren.size(); ++iChild)
 	{
-		TEntityNode* pNode = pRootNode->vecChildren[iChild];
+		TSceneNode* pNode = pRootNode->vecChildren[iChild];
 		TPrefabDefinition* pPrefab = m_pSceneHierarchy->GetPrefabDefinition(pNode->tEntity.sPrefabName);
-		CModel* pModel = m_pResourceManager->GetModel( pPrefab->sModel );
-		if (pModel)
+		if (pPrefab)
 		{
-			CTexture* pTexture = m_pResourceManager->GetTexture(pPrefab->sTexture);
+			CModel* pModel = m_pResourceManager->GetModel(pPrefab->sModel);
+			if (pModel)
+			{
+				CTexture* pTexture = m_pResourceManager->GetTexture(pPrefab->sTexture);
 
-			TMatrix worldMat;
-			float fWorldScale = 0.1f;
-			NMatrix::Transformation(worldMat,
-									TVector3(pNode->tEntity.vecPosition[0], pNode->tEntity.vecPosition[1], pNode->tEntity.vecPosition[2]),
-									TVector3(pNode->tEntity.vecScale[0], pNode->tEntity.vecScale[1], pNode->tEntity.vecScale[2]) * fWorldScale,
-									TVector3(pNode->tEntity.vecRotation[0], pNode->tEntity.vecRotation[1], pNode->tEntity.vecRotation[2]));
-			m_pColourShader->SetShaderInteger(this, "gShaderTexture", pTexture->GetTextureID());
-			m_pColourShader->SetShaderMatrix(this, "worldMatrix", worldMat.m);
+				TMatrix worldMat;
+				float fWorldScale = 0.1f;
+				NMatrix::Transformation(worldMat,
+					TVector3(pNode->tEntity.vecPosition[0], pNode->tEntity.vecPosition[1], pNode->tEntity.vecPosition[2]),
+					TVector3(pNode->tEntity.vecScale[0], pNode->tEntity.vecScale[1], pNode->tEntity.vecScale[2]) * fWorldScale,
+					TVector3(pNode->tEntity.vecRotation[0], pNode->tEntity.vecRotation[1], pNode->tEntity.vecRotation[2]));
+				m_pColourShader->SetShaderInteger(this, "gShaderTexture", pTexture->GetTextureID());
+				m_pColourShader->SetShaderMatrix(this, "worldMatrix", worldMat.m);
 
-			pModel->Draw(this, _pCurrentCamera);
+				pModel->Draw(this, _pCurrentCamera);
+			}
 		}
 	}
 }
