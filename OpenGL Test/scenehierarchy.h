@@ -14,7 +14,6 @@
 #include <map>
 
 // Local Includes
-#include "editordefines.h"
 #include "defines.h"
 
 // Types
