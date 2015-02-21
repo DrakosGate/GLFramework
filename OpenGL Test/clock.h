@@ -1,11 +1,4 @@
 //
-// Bachelor of Software Engineering - Year 2
-// Media Design School
-// Auckland 
-// New Zealand
-//
-// (c) 2013 Media Design School
-//
 //  File Name   :   clock.h
 //  Description :   Clock Interface
 //  Author      :   Chris Howlett
@@ -29,12 +22,12 @@
 // Prototypes
 
 
-class CClock
+class Clock
 {
     // Member Functions
 public:
-	CClock();
-	~CClock();
+	Clock();
+	~Clock();
 	bool Initialise();
 	void Process();
 	float GetDeltaTick();
@@ -48,8 +41,8 @@ public:
 protected:
 
 private:
-	CClock(const CClock& _kr);
-	CClock& operator= (const CClock& _rHS);
+	Clock(const Clock& _kr);
+	Clock& operator= (const Clock& _rHS);
 
     // Member Variables
 public:

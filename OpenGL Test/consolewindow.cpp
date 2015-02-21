@@ -33,7 +33,7 @@
 * @author Christopher Howlett
 *
 */
-CConsoleWindow::CConsoleWindow()
+ConsoleWindow::ConsoleWindow()
 {
 
 }
@@ -44,7 +44,7 @@ CConsoleWindow::CConsoleWindow()
 * @author Christopher Howlett
 *
 */
-CConsoleWindow::~CConsoleWindow()
+ConsoleWindow::~ConsoleWindow()
 {
 
 }
@@ -56,7 +56,7 @@ CConsoleWindow::~CConsoleWindow()
 *
 */
 void 
-CConsoleWindow::InitialiseConsole()
+ConsoleWindow::InitialiseConsole()
 {
 	//Initialise a seperate console window for debug output
 	AllocConsole();
@@ -75,7 +75,7 @@ CConsoleWindow::InitialiseConsole()
 *
 */
 void 
-CConsoleWindow::ShutdownConsole()
+ConsoleWindow::ShutdownConsole()
 {
 	FreeConsole();
 }

@@ -31,7 +31,7 @@ int WINAPI
 WinMain( HINSTANCE _hInstance, HINSTANCE _hPrevInstance, LPSTR _pCmdLine, int _iCmdShow)
 {
 	//Initialise window
-	CWindow* pGameWindow = new CWindow();
+	Window* pGameWindow = new Window();
 
 	pGameWindow->Initialise(_hInstance, RENDERER_OPENGL);
 	pGameWindow->Run();

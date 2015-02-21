@@ -32,27 +32,29 @@ typedef HGLRC(WINAPI * PFNWGLCREATECONTEXTATTRIBSARBPROC) (HDC _hdc, HGLRC _hSha
 // Constants
 
 // Prototypes
-class CCamera;
-class CClock;
-class CConsoleWindow;
+class Camera;
+class Clock;
+class Level;
+class Window;
+class ConsoleWindow;
 
-class COpenGLRenderer : public IRenderer
+class OpenGLRenderer : public IRenderer
 {
 	//Member functions
 public:
-	COpenGLRenderer();
-	virtual ~COpenGLRenderer();
+	OpenGLRenderer();
+	virtual ~OpenGLRenderer();
 
-	virtual bool Initialise(HWND _hWnd, int _iWindowWidth, int _iWindowHeight, TInputStruct* _pInput);
-	virtual bool InitialiseExtensions(HWND _hWnd);
+	virtual bool Initialise( Window* _pWindow, int _iWindowWidth, int _iWindowHeight, TInputStruct* _pInput) override;
+	virtual bool InitialiseExtensions(HWND _hWnd) override;
 	virtual void SetupOpenGL(HWND _hWnd, bool _bVSync);
 	virtual void CleanUp();
 	virtual void ExecuteOneFrame(float _fDeltaTick);
 
 	virtual void PreDraw();
-	virtual void Draw(CCamera* _pCurrentCamera);
+	virtual void Draw(const Camera* _pCurrentCamera);
 	virtual void PostDraw();
-	virtual void Process(float _fDeltaTick);
+	virtual void Process( const float _fDeltaTime );
 	virtual void ProcessInput();
 	
 	//virtual void CreateEntities();
@@ -60,7 +62,7 @@ public:
 	//virtual void LoadShaders();
 
 
-	//void DrawLine(TVector3& _rStart, TVector3& _rEnd, TVector3& _rColour);
+	//void DrawLine(glm::vec3& _rStart, glm::vec3& _rEnd, glm::vec3& _rColour);
 	//
 	//void SendLightData();
 	//void LoadTextures();
@@ -71,16 +73,13 @@ private:
 
 //Member variables
 private:
-	//Cameras
-	CCamera* m_pPerspectiveCamera;
-	CCamera* m_pOrthographicCamera;
-	bool m_bIsFirstPerson;
+	Level* m_pLevel;
 
 	//Input
 	TInputStruct* m_pInput;
 
 	//Debugging
-	CConsoleWindow* m_pConsole;
+	ConsoleWindow* m_pConsole;
 	float m_fGameTime;
 
 	HWND m_hWindow;

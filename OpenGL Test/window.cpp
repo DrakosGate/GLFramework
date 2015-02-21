@@ -38,7 +38,7 @@
 LRESULT CALLBACK
 WindowProc(HWND _hWnd, UINT _uiMsg, WPARAM _wParam, LPARAM _lParam)
 {
-	static CWindow* pThisWindow = 0;
+	static Window* pThisWindow = 0;
 
 	switch( _uiMsg )
 	{
@@ -49,7 +49,7 @@ WindowProc(HWND _hWnd, UINT _uiMsg, WPARAM _wParam, LPARAM _lParam)
 			break;
 		case WM_WINDOW_CREATION:
 			{
-				pThisWindow = (CWindow*)_wParam;
+				pThisWindow = (Window*)_wParam;
 			}
 			break;
 		case WM_KEYDOWN:
@@ -92,13 +92,13 @@ WindowProc(HWND _hWnd, UINT _uiMsg, WPARAM _wParam, LPARAM _lParam)
 * @author Christopher Howlett
 *
 */
-CWindow::CWindow()
+Window::Window()
 :	m_pRenderer(0)
 ,	m_hMainWnd(0)
 ,	m_pClock(0)
 {
-	m_iClientWidth    = static_cast<int>(WINDOW_WIDTH);
-	m_iClientHeight   = static_cast<int>(WINDOW_HEIGHT);
+	m_iWindowWidth    = static_cast<int>(WINDOW_WIDTH);
+	m_iWindowHeight   = static_cast<int>(WINDOW_HEIGHT);
 }
 /**
 *
@@ -107,7 +107,7 @@ CWindow::CWindow()
 * @author Christopher Howlett
 *
 */
-CWindow::~CWindow()
+Window::~Window()
 {
 	if(m_pRenderer)
 	{
@@ -129,7 +129,7 @@ CWindow::~CWindow()
 *
 */
 HINSTANCE 
-CWindow::GetInstance()
+Window::GetInstance()
 {
 	return m_hInstance;
 }
@@ -142,7 +142,7 @@ CWindow::GetInstance()
 *
 */
 HWND 
-CWindow::GetWindowHandle()
+Window::GetHandle()
 {
 	return m_hMainWnd;
 }
@@ -157,10 +157,10 @@ CWindow::GetWindowHandle()
 *
 */
 bool
-CWindow::Initialise(HINSTANCE _hInstance, ERendererType _eRenderer)
+Window::Initialise(HINSTANCE _hInstance, ERendererType _eRenderer)
 {
 	//Setup game clock
-	m_pClock = new CClock();
+	m_pClock = new Clock();
 	m_pClock->Initialise();
 	m_pClock->LimitFramesPerSecond(60.0f);
 
@@ -176,7 +176,7 @@ CWindow::Initialise(HINSTANCE _hInstance, ERendererType _eRenderer)
 	{
 	case RENDERER_OPENGL:
 	{
-		m_pRenderer = new COpenGLRenderer();
+		m_pRenderer = new OpenGLRenderer();
 	}
 		break;
 	case RENDERER_DIRECTX:
@@ -186,7 +186,7 @@ CWindow::Initialise(HINSTANCE _hInstance, ERendererType _eRenderer)
 		break;
 	};
 
-	m_pRenderer->Initialise(m_hMainWnd, m_iClientWidth, m_iClientHeight, &m_tInput);
+	m_pRenderer->Initialise( this, m_iWindowWidth, m_iWindowHeight, &m_tInput);
 
 	return true;
 }
@@ -200,7 +200,7 @@ CWindow::Initialise(HINSTANCE _hInstance, ERendererType _eRenderer)
 *
 */
 bool
-CWindow::InitialiseMainWindow(wchar_t* _pTitle, int _iX, int _iY, int _iWidth, int _iHeight, bool _bFullscreen, bool _bVSync)
+Window::InitialiseMainWindow(wchar_t* _pTitle, int _iX, int _iY, int _iWidth, int _iHeight, bool _bFullscreen, bool _bVSync)
 {
 	bool bResult = false;
 	m_bIsFullscreen = _bFullscreen;
@@ -290,7 +290,7 @@ CWindow::InitialiseMainWindow(wchar_t* _pTitle, int _iX, int _iY, int _iWidth, i
 *
 */
 void 
-CWindow::Run()
+Window::Run()
 {
 	MSG msg;
 	ZeroMemory(&msg, sizeof(MSG));
@@ -318,7 +318,7 @@ CWindow::Run()
 *
 */
 void 
-CWindow::ExecuteOneFrame()
+Window::ExecuteOneFrame()
 {
 	m_pClock->Process();
 	float fTimeElapsed = m_pClock->GetDeltaTick();
@@ -333,7 +333,7 @@ CWindow::ExecuteOneFrame()
 *
 */
 LRESULT 
-CWindow::msgProc(UINT msg, WPARAM wParam, LPARAM lParam)
+Window::msgProc(UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch( msg )
 	{
@@ -342,7 +342,7 @@ CWindow::msgProc(UINT msg, WPARAM wParam, LPARAM lParam)
 	// =======================================================  
 	case WM_MOUSEMOVE:
 		{
-			glm::vec3 vecThisMouse(static_cast<float>(LOWORD(lParam) - (m_iClientWidth * 0.5f)), static_cast<float>(-(HIWORD(lParam) - (m_iClientHeight * 0.25f))), 0.0f);
+			glm::vec3 vecThisMouse(static_cast<float>(LOWORD(lParam) - (m_iWindowWidth * 0.5f)), static_cast<float>(-(HIWORD(lParam) - (m_iWindowHeight * 0.25f))), 0.0f);
 			m_tInput.vecMouseDir = vecThisMouse - glm::vec3(m_tInput.fMouseX, m_tInput.fMouseY, 0.0f);
 			m_tInput.fMouseX = vecThisMouse.x;
 			m_tInput.fMouseY = vecThisMouse.y;

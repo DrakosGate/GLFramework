@@ -10,21 +10,10 @@
 // Local Includes
 #include "defines.h"
 #include "camera.h"
-#include "shader.h"
-#include "model.h"
 #include "clock.h"
-#include "texture.h"
 #include "consolewindow.h"
-#include "lightmanager.h"
-#include "terrain.h"
-#include "spotlight.h"
-#include "pointlight.h"
-#include "directionallight.h"
-#include "framebufferobject.h"
-#include "helicopter.h"
-#include "ship.h"
-#include "scenehierarchy.h"
-#include "resourcemanager.h"
+#include "level.h"
+#include "window.h"
 
 // This Include
 #include "openglrenderer.h"
@@ -35,27 +24,18 @@
 
 // Implementation
 
-COpenGLRenderer::COpenGLRenderer()
+OpenGLRenderer::OpenGLRenderer()
 : m_hWindow(0)
 , m_deviceContext(0)
-, m_pPerspectiveCamera(0)
 , m_pInput(0)
 , m_pConsole(0)
+, m_pLevel( 0 )
 {
 
 }
-COpenGLRenderer::~COpenGLRenderer()
+OpenGLRenderer::~OpenGLRenderer()
 {
-	if(m_pPerspectiveCamera)
-	{
-		delete m_pPerspectiveCamera;
-		m_pPerspectiveCamera = 0;
-	}
-	if(m_pOrthographicCamera)
-	{
-		delete m_pOrthographicCamera;
-		m_pOrthographicCamera = 0;
-	}
+	SAFEDELETE( m_pLevel );
 	if(m_pConsole)
 	{
 		//Shutdown console
@@ -69,38 +49,30 @@ COpenGLRenderer::~COpenGLRenderer()
 	CleanUp();
 }
 bool 
-COpenGLRenderer::Initialise(HWND _hWnd, int _iWindowWidth, int _iWindowHeight, TInputStruct* _pInput)
+OpenGLRenderer::Initialise( Window* _pWindow, int _iWindowWidth, int _iWindowHeight, TInputStruct* _pInput )
 {
-	m_hWindow = _hWnd;
+	m_hWindow = _pWindow->GetHandle();
 	m_pInput = _pInput;
 	m_iWindowWidth = _iWindowWidth;
 	m_iWindowHeight = _iWindowHeight;
 
 	//Start up console
-	m_pConsole = new CConsoleWindow();
+	m_pConsole = new ConsoleWindow();
 	m_pConsole->InitialiseConsole();
 	
 	//Initialise OpenGL 
-	InitialiseExtensions(_hWnd);
-	SetupOpenGL(_hWnd, false);
+	InitialiseExtensions( m_hWindow );
+	SetupOpenGL( m_hWindow, false );
 
 	//Initialise camera objects
-	const float m_fFOV = 45.0f;
-	const float m_fAspectRatio = (GLfloat)WINDOW_WIDTH / (GLfloat)WINDOW_HEIGHT;
-	m_pPerspectiveCamera = new CCamera();
-	m_pPerspectiveCamera->Initialise(m_fFOV, m_fAspectRatio, 0.01f, 1000.0f, 100.0f, 50.0f, m_iWindowWidth, m_iWindowHeight, CAMERA_PERSPECTIVE);
-	m_pPerspectiveCamera->SetInput(m_pInput);
-	m_pPerspectiveCamera->SetPosition(glm::vec3(0.0f, 2.0f, -5.0f));
-	m_pOrthographicCamera = new CCamera();
-	m_pOrthographicCamera->Initialise(m_fFOV, m_fAspectRatio, 0.1f, 1000.0f, 5.0f, 2.0f, m_iWindowWidth, m_iWindowHeight, CAMERA_ORTHOGONAL);
-	m_pOrthographicCamera->SetPosition(glm::vec3(10.0f, 0.0f, 0.0f));
-	m_pOrthographicCamera->SetForward(glm::vec3(-1.0f, 0.0f, 0.0f));
+	m_pLevel = new Level();
+	m_pLevel->Initialise( this, _pWindow );
 
 	
 	return true;
 }
 void
-COpenGLRenderer::SetupOpenGL( HWND _hWnd, bool _bVSync )
+OpenGLRenderer::SetupOpenGL( HWND _hWnd, bool _bVSync )
 {
 	bool bResult = false;
 	int iResult = 0;
@@ -175,7 +147,7 @@ COpenGLRenderer::SetupOpenGL( HWND _hWnd, bool _bVSync )
 }
 
 void
-COpenGLRenderer::CleanUp()
+OpenGLRenderer::CleanUp()
 {
 	wglMakeCurrent(NULL, NULL);
 	wglDeleteContext(m_renderingContext);
@@ -183,7 +155,7 @@ COpenGLRenderer::CleanUp()
 }
 
 void
-COpenGLRenderer::ExecuteOneFrame(float _fDeltaTick)
+OpenGLRenderer::ExecuteOneFrame(float _fDeltaTick)
 {
 	//Process calculations
 	Process(_fDeltaTick);
@@ -192,13 +164,13 @@ COpenGLRenderer::ExecuteOneFrame(float _fDeltaTick)
 	PreDraw();
 
 	//Render using perspective cam
-	Draw(m_pPerspectiveCamera);
+	Draw( m_pLevel->GetPerspectiveCamera() );
 
 	//Finish, swap buffers and present scene
 	PostDraw();
 }
 void 
-COpenGLRenderer::PreDraw()
+OpenGLRenderer::PreDraw()
 {
 	glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
@@ -209,14 +181,14 @@ COpenGLRenderer::PreDraw()
 	//SendLightData();
 }
 void 
-COpenGLRenderer::Draw(CCamera* _pCurrentCamera)
+OpenGLRenderer::Draw(const Camera* _pCurrentCamera)
 {	
 	/*
 	//m_pColourShader->SetShaderMatrix(this, "worldMatrix", m_matWorld.m);
 	//m_pColourShader->SetShaderMatrix(this, "viewMatrix", _pCurrentCamera->GetViewMatrix().m);
 	//m_pColourShader->SetShaderMatrix(this, "projectionMatrix", _pCurrentCamera->GetProjectionMatrix().m);
 	
-	//DrawLine(m_pShip->GetPosition(), m_pShip->GetPosition() + (m_pShip->GetForward() * 5.0f), TVector3(1.0f, 0.0f, 0.0f));
+	//DrawLine(m_pShip->GetPosition(), m_pShip->GetPosition() + (m_pShip->GetForward() * 5.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
 	//Camera variables
 	m_pColourShader->SetShaderVector3(this, "gCameraPosition", _pCurrentCamera->GetPosition());
@@ -260,12 +232,12 @@ COpenGLRenderer::Draw(CCamera* _pCurrentCamera)
 			{
 				CTexture* pTexture = m_pResourceManager->GetTexture(pPrefab->sTexture);
 
-				TMatrix worldMat;
+				glm::mat4x4 worldMat;
 				float fWorldScale = 0.1f;
 				NMatrix::Transformation(worldMat,
-					TVector3(pNode->tEntity.vecPosition[0], pNode->tEntity.vecPosition[1], pNode->tEntity.vecPosition[2]),
-					TVector3(pNode->tEntity.vecScale[0], pNode->tEntity.vecScale[1], pNode->tEntity.vecScale[2]) * fWorldScale,
-					TVector3(pNode->tEntity.vecRotation[0], pNode->tEntity.vecRotation[1], pNode->tEntity.vecRotation[2]));
+					glm::vec3(pNode->tEntity.vecPosition[0], pNode->tEntity.vecPosition[1], pNode->tEntity.vecPosition[2]),
+					glm::vec3(pNode->tEntity.vecScale[0], pNode->tEntity.vecScale[1], pNode->tEntity.vecScale[2]) * fWorldScale,
+					glm::vec3(pNode->tEntity.vecRotation[0], pNode->tEntity.vecRotation[1], pNode->tEntity.vecRotation[2]));
 				m_pColourShader->SetShaderInteger(this, "gShaderTexture", pTexture->GetTextureID());
 				m_pColourShader->SetShaderMatrix(this, "worldMatrix", worldMat.m);
 
@@ -275,37 +247,27 @@ COpenGLRenderer::Draw(CCamera* _pCurrentCamera)
 	}*/
 }
 void 
-COpenGLRenderer::PostDraw()
+OpenGLRenderer::PostDraw()
 {
 	glFlush();
 	SwapBuffers(m_deviceContext);
 	glFinish();
 }
 void 
-COpenGLRenderer::Process(float _fDeltaTick)
+OpenGLRenderer::Process( const float _fDeltaTime )
 {
 	ProcessInput();
 
-	m_fGameTime += _fDeltaTick;
-
-	m_pPerspectiveCamera->Process(_fDeltaTick);
-	m_pPerspectiveCamera->ProcessInput(_fDeltaTick);
+	m_fGameTime += _fDeltaTime;
+	//Process everything
+	m_pLevel->Process( _fDeltaTime );
 }
 void 
-COpenGLRenderer::ProcessInput()
+OpenGLRenderer::ProcessInput()
 {
 	if(m_pInput->bSpace)
 	{
-		if(m_bIsFirstPerson)
-		{
-			m_bIsFirstPerson = false;
-			//m_pPerspectiveCamera->SetParent(m_pShip, &TVector3(0.0f, 0.0f, 0.23f)); //First person
-		}
-		else
-		{
-			m_bIsFirstPerson = true;
-			//m_pPerspectiveCamera->SetParent(m_pShip, &TVector3(0.0f, 0.8f, -4.0f)); //Third person
-		}
+		
 	}
 }
 /*
@@ -316,36 +278,36 @@ COpenGLRenderer::CreateEntities()
 	m_pPerspectiveCamera = new CCamera();
 	m_pPerspectiveCamera->Initialise(m_fFOV, m_fAspectRatio, 0.01f, 1000.0f, 100.0f, 50.0f, m_iWindowWidth, m_iWindowHeight, CAMERA_PERSPECTIVE);
 	m_pPerspectiveCamera->SetInput(m_pInput);
-	m_pPerspectiveCamera->SetPosition(TVector3(0.0f, 2.0f, -5.0f));
+	m_pPerspectiveCamera->SetPosition(glm::vec3(0.0f, 2.0f, -5.0f));
 	m_pOrthographicCamera = new CCamera();
 	m_pOrthographicCamera->Initialise(m_fFOV, m_fAspectRatio, 0.1f, 1000.0f, 5.0f, 2.0f, m_iWindowWidth, m_iWindowHeight, CAMERA_ORTHOGONAL);
-	m_pOrthographicCamera->SetPosition(TVector3(10.0f, 0.0f, 0.0f));
-	m_pOrthographicCamera->SetForward(TVector3(-1.0f, 0.0f, 0.0f));
+	m_pOrthographicCamera->SetPosition(glm::vec3(10.0f, 0.0f, 0.0f));
+	m_pOrthographicCamera->SetForward(glm::vec3(-1.0f, 0.0f, 0.0f));
 
 	//Initialise models
 	CreateModels();
 
 	m_pScreenSurface = new CModel();
-	m_pScreenSurface->Initialise(this, TVector3(0.0f, 0.0f, 0.0f), 10.0f, TEXTURE_SQUARES, m_pColourShader);
+	m_pScreenSurface->Initialise(this, glm::vec3(0.0f, 0.0f, 0.0f), 10.0f, TEXTURE_SQUARES, m_pColourShader);
 	m_pScreenSurface->LoadSquare();
 
 	m_pTerrain = new CTerrain();
-	m_pTerrain->Initialise(this, TVector3(0.0f, 0.0f, 0.0f), 100.0f, TEXTURE_FLOORTILE, m_pColourShader);
+	m_pTerrain->Initialise(this, glm::vec3(0.0f, 0.0f, 0.0f), 100.0f, TEXTURE_FLOORTILE, m_pColourShader);
 	m_pTerrain->LoadTerrain(10, 50.0f);
 	m_pTerrain->SetNormalMap(TEXTURE_FLOORNORMAL);
 
 	//m_pHelicopter = new CHelicopter();
 	//m_pHelicopter->Initialise(&m_pModelCollection[MODEL_HELICHASSIS], &m_pModelCollection[MODEL_HELIROTOR], m_pInput);
-	//m_pHelicopter->SetPosition(TVector3(0.0f, 1.0f, -10.0f));
+	//m_pHelicopter->SetPosition(glm::vec3(0.0f, 1.0f, -10.0f));
 	//
-	////m_pPerspectiveCamera->SetParent(m_pHelicopter, &TVector3(0.0f, 0.8f, -4.0f)); //Third person
-	////m_pPerspectiveCamera->SetParent(m_pHelicopter, &TVector3(0.0f, 0.2f, 0.3f)); //First person
+	////m_pPerspectiveCamera->SetParent(m_pHelicopter, &glm::vec3(0.0f, 0.8f, -4.0f)); //Third person
+	////m_pPerspectiveCamera->SetParent(m_pHelicopter, &glm::vec3(0.0f, 0.2f, 0.3f)); //First person
 	//m_pShip = new CShip();
 	//m_pShip->Initialise(&m_pModelCollection[MODEL_SHIP], m_pInput);
-	//m_pShip->SetPosition(TVector3(0.0f, 2.0f, -10.0f));
-	//m_pLightManager->GetSpot(0)->SetParent(m_pShip, &TVector3(0.0f, 0.0f, 1.0f));
-	//m_pPerspectiveCamera->SetParent(m_pShip, &TVector3(0.0f, 0.8f, -4.0f)); //Third person
-	//m_pPerspectiveCamera->SetParent(m_pShip, &TVector3(0.0f, 0.0f, 0.2f)); //First person
+	//m_pShip->SetPosition(glm::vec3(0.0f, 2.0f, -10.0f));
+	//m_pLightManager->GetSpot(0)->SetParent(m_pShip, &glm::vec3(0.0f, 0.0f, 1.0f));
+	//m_pPerspectiveCamera->SetParent(m_pShip, &glm::vec3(0.0f, 0.8f, -4.0f)); //Third person
+	//m_pPerspectiveCamera->SetParent(m_pShip, &glm::vec3(0.0f, 0.0f, 0.2f)); //First person
 
 	//Create Frame Buffer Objects
 	//m_pFrameBuffer = new CFrameBufferObject();
@@ -358,24 +320,24 @@ COpenGLRenderer::CreateModels()
 	//Initialise all models used in this scene
 	//m_pModelCollection = new CModel[MODEL_MAX];
 	//
-	//m_pModelCollection[MODEL_LOOP].Initialise(this, TVector3(0.0f, 0.0f, 0.0f), 10.0f, TEXTURE_STONE, m_pColourShader);
+	//m_pModelCollection[MODEL_LOOP].Initialise(this, glm::vec3(0.0f, 0.0f, 0.0f), 10.0f, TEXTURE_STONE, m_pColourShader);
 	//m_pModelCollection[MODEL_LOOP].LoadFromOBJ("Assets/checkerLoop.obj");
 	//m_pModelCollection[MODEL_LOOP].SetNormalMap(TEXTURE_STONENORMAL);
-	//m_pModelCollection[MODEL_LOOP].SetScale(TVector3(10.0f, 10.0f, 10.0f));
+	//m_pModelCollection[MODEL_LOOP].SetScale(glm::vec3(10.0f, 10.0f, 10.0f));
 	//
-	//m_pModelCollection[MODEL_HELICHASSIS].Initialise(this, TVector3(0.0f, 0.0f, 0.0f), 1.0f, TEXTURE_STONE, m_pColourShader);
+	//m_pModelCollection[MODEL_HELICHASSIS].Initialise(this, glm::vec3(0.0f, 0.0f, 0.0f), 1.0f, TEXTURE_STONE, m_pColourShader);
 	//m_pModelCollection[MODEL_HELICHASSIS].LoadFromOBJ("Assets/helicopter.obj");
 	//m_pModelCollection[MODEL_HELICHASSIS].SetNormalMap(TEXTURE_STONENORMAL);
 	//
-	//m_pModelCollection[MODEL_HELIROTOR].Initialise(this, TVector3(0.0f, 0.0f, 0.0f), 1.0f, TEXTURE_STONE, m_pColourShader);
+	//m_pModelCollection[MODEL_HELIROTOR].Initialise(this, glm::vec3(0.0f, 0.0f, 0.0f), 1.0f, TEXTURE_STONE, m_pColourShader);
 	//m_pModelCollection[MODEL_HELIROTOR].LoadFromOBJ("Assets/rotor.obj");
 	//m_pModelCollection[MODEL_HELIROTOR].SetNormalMap(TEXTURE_STONENORMAL);
 	//
-	//m_pModelCollection[MODEL_SHIP].Initialise(this, TVector3(0.0f, 0.0f, 0.0f), 1.0f, TEXTURE_SHIP, m_pColourShader);
+	//m_pModelCollection[MODEL_SHIP].Initialise(this, glm::vec3(0.0f, 0.0f, 0.0f), 1.0f, TEXTURE_SHIP, m_pColourShader);
 	//m_pModelCollection[MODEL_SHIP].LoadFromOBJ("Assets/ship.obj");
 	//m_pModelCollection[MODEL_SHIP].SetNormalMap(TEXTURE_SHIPNORMAL);
 	//
-	//m_pModelCollection[MODEL_CUBE].Initialise(this, TVector3(0.0f, 0.0f, 0.0f), 1.0f, TEXTURE_STONE, m_pColourShader);
+	//m_pModelCollection[MODEL_CUBE].Initialise(this, glm::vec3(0.0f, 0.0f, 0.0f), 1.0f, TEXTURE_STONE, m_pColourShader);
 	//m_pModelCollection[MODEL_CUBE].LoadFromOBJ("Assets/cube.obj");
 	//m_pModelCollection[MODEL_CUBE].SetNormalMap(TEXTURE_STONENORMAL);
 	
@@ -388,7 +350,7 @@ COpenGLRenderer::LoadShaders()
 }
 //Draw debug line to window
 void 
-COpenGLRenderer::DrawLine(TVector3& _rStart, TVector3& _rEnd, TVector3& _rColour)
+COpenGLRenderer::DrawLine(glm::vec3& _rStart, glm::vec3& _rEnd, glm::vec3& _rColour)
 {
 	glBegin(GL_LINES);
 	glLineWidth(5.5); 
@@ -461,24 +423,24 @@ void
 COpenGLRenderer::CreateLights()
 {
 	//Ambient light
-	m_vecAmbientLight = TVector4(0.0f, 0.0f, 0.0f, 1.0f);
+	m_vecAmbientLight = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
 	//Scene lights
 	m_pLightManager = new CLightManager();
 	m_pLightManager->Initialise();
 	
 	//Directional
-	m_pLightManager->AddDirectional(TVector3(1.0f, -0.1f, 0.0f), TVector4(0.5f, 0.5f, 0.55f, 1.0f), 500.0f);
+	m_pLightManager->AddDirectional(glm::vec3(1.0f, -0.1f, 0.0f), glm::vec4(0.5f, 0.5f, 0.55f, 1.0f), 500.0f);
 	//Point
-	m_pLightManager->AddPoint(TVector3(-5.0f, 5.0f, 0.0f), TVector4(1.0f, 0.2f, 0.2f, 1.0f), TVector3(1.0f, 0.5f, 0.1f), 50.1f);
-	m_pLightManager->AddPoint(TVector3(5.0f, 5.0f, 0.0f), TVector4(0.5f, 0.5f, 0.5f, 1.0f), TVector3(1.0f, 0.5f, 0.1f), 50.1f);
+	m_pLightManager->AddPoint(glm::vec3(-5.0f, 5.0f, 0.0f), glm::vec4(1.0f, 0.2f, 0.2f, 1.0f), glm::vec3(1.0f, 0.5f, 0.1f), 50.1f);
+	m_pLightManager->AddPoint(glm::vec3(5.0f, 5.0f, 0.0f), glm::vec4(0.5f, 0.5f, 0.5f, 1.0f), glm::vec3(1.0f, 0.5f, 0.1f), 50.1f);
 	//Spot
-	m_pLightManager->AddSpot(TVector3(0.0f, 15.0f, 0.0f), TVector3(0.0f, -1.0f, 0.0f), TVector4(0.5f, 0.5f, 0.5f, 1.0f), TVector3(1.0f, 0.5f, 0.2f), 0.6f, 500.0f);
-	//m_pLightManager->AddSpot(TVector3(0.0f, 5.0f, 5.0f), TVector3(0.0f, 5.0f, 5.0f) * -1.0f, TVector4(0.2f, 0.2f, 0.2f, 1.0f), TVector3(1.0f, 0.5f, 0.2f), 0.5f, 50.0f);
+	m_pLightManager->AddSpot(glm::vec3(0.0f, 15.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec4(0.5f, 0.5f, 0.5f, 1.0f), glm::vec3(1.0f, 0.5f, 0.2f), 0.6f, 500.0f);
+	//m_pLightManager->AddSpot(glm::vec3(0.0f, 5.0f, 5.0f), glm::vec3(0.0f, 5.0f, 5.0f) * -1.0f, glm::vec4(0.2f, 0.2f, 0.2f, 1.0f), glm::vec3(1.0f, 0.5f, 0.2f), 0.5f, 50.0f);
 }*/
 
 bool
-COpenGLRenderer::InitialiseExtensions(HWND _hWnd)
+OpenGLRenderer::InitialiseExtensions(HWND _hWnd)
 {
 	printf("- Initialising OpenGL Extensions\n");
 	bool bResult = false;
@@ -516,7 +478,7 @@ COpenGLRenderer::InitialiseExtensions(HWND _hWnd)
 }
 
 bool 
-COpenGLRenderer::LoadExtensions()
+OpenGLRenderer::LoadExtensions()
 {
 	printf("- Loading OpenGL Extensions\n");
 	bool bResult = true;

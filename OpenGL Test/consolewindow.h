@@ -27,19 +27,19 @@
 
 // Prototypes
 
-class CConsoleWindow
+class ConsoleWindow
 {
 //Member functions
 public:
-	CConsoleWindow();
-	~CConsoleWindow();
+	ConsoleWindow();
+	~ConsoleWindow();
 
 	void InitialiseConsole();
 	void ShutdownConsole();
 	
 private:
-	CConsoleWindow(const CConsoleWindow& _kr);
-	CConsoleWindow& operator= (const CConsoleWindow& _rhs);
+	ConsoleWindow(const ConsoleWindow& _kr);
+	ConsoleWindow& operator= (const ConsoleWindow& _rhs);
 
 //Member variables
 private:

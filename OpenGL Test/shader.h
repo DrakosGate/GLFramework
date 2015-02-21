@@ -20,7 +20,6 @@
 // Library Includes
 
 // Local Includes
-#include "chrismaths.h"
 
 // Types
 
@@ -41,8 +40,8 @@ public:
 	void SetShaderMatrix(COpenGLRenderer* _pRenderer, char* _pcVariableName, float* _pMatrix);
 	void SetShaderInteger(COpenGLRenderer* _pRenderer, char* _pcVariableName, int _iInteger);
 	void SetShaderFloat(COpenGLRenderer* _pRenderer, char* _pcVariableName, float _fFloat);
-	void SetShaderVector3(COpenGLRenderer* _pRenderer, char* _pcVariableName, TVector3& _rVector);
-	void SetShaderVector4(COpenGLRenderer* _pRenderer, char* _pcVariableName, TVector4& _rVector);
+	void SetShaderVector3(COpenGLRenderer* _pRenderer, char* _pcVariableName, glm::vec3& _rVector);
+	void SetShaderVector4(COpenGLRenderer* _pRenderer, char* _pcVariableName, glm::vec4& _rVector);
 	void OutputShaderErrorMessage(COpenGLRenderer* _pRenderer, unsigned int _uiShaderId);
 
 	int GetShaderProgram() const;

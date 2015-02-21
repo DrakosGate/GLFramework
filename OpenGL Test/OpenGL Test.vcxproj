@@ -93,20 +93,31 @@
   <ItemGroup>
     <ClInclude Include="camera.h" />
     <ClInclude Include="clock.h" />
+    <ClInclude Include="component.h" />
     <ClInclude Include="consolewindow.h" />
     <ClInclude Include="defines.h" />
     <ClInclude Include="gameobject.h" />
     <ClInclude Include="irenderer.h" />
+    <ClInclude Include="level.h" />
     <ClInclude Include="openglrenderer.h" />
+    <ClInclude Include="shader.h" />
+    <ClInclude Include="texture.h" />
+    <ClInclude Include="texturetypes.h" />
+    <ClInclude Include="transformcomponent.h" />
     <ClInclude Include="window.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="clock.cpp" />
+    <ClCompile Include="component.cpp" />
     <ClCompile Include="consolewindow.cpp" />
     <ClCompile Include="gameobject.cpp" />
+    <ClCompile Include="level.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="openglrenderer.cpp" />
+    <ClCompile Include="shader.cpp" />
+    <ClCompile Include="texture.cpp" />
+    <ClCompile Include="transformcomponent.cpp" />
     <ClCompile Include="window.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

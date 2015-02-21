@@ -37,12 +37,12 @@ enum ECameraType
 
 // Prototypes
 
-class CCamera : public CGameObject
+class Camera : public GameObject
 {
 // Member functions
 public:
-	CCamera();
-	virtual ~CCamera();
+	Camera();
+	virtual ~Camera();
 	
 	virtual bool Initialise(float _fFOV,
 							float _fAspectRatio,
@@ -52,16 +52,15 @@ public:
 							float _fRotationSpeed,
 							int _iScreenWidth, 
 							int _iScreenHeight,
-							ECameraType _eCameraType);
-	virtual void Process(float _fDeltaTick);
-	void ProcessInput(float _fDeltaTick);
-	virtual void ProcessParent(float _fDeltaTime);
+							ECameraType _eCameraType );
+	virtual void Process( const float _fDeltaTick );
+	void ProcessInput(const float _fDeltaTick);
 	
 	void SetInput(TInputStruct* _pInput);
 	void SetClipPlanes(float _fNear, float _fFar);
 	float GetNearPlane() const;
 	float GetFarPlane() const;
-
+	
 	void SetFOV(float _fFOV);
 	void SetView3D( glm::vec3& _rVecRight, glm::vec3& _rVecUp, glm::vec3& _rVecDir, glm::vec3& _rVecPos);
 	void SetViewLookAt(glm::vec3& _rVecPos, glm::vec3& _rVecLook, glm::vec3& _rVecUp);
@@ -71,12 +70,12 @@ public:
 	glm::mat4x4& GetViewMatrix();
 	glm::mat4x4& GetProjectionMatrix();
 	glm::mat4x4& GetWorldMatrix();
-
+	
 	void Calculate3DMouseCoordinates(glm::vec2& _rVecMouse, TRay& _rRay);
 
 protected:
-	CCamera(const CCamera& _kr);
-	CCamera& operator= (const CCamera& _rhs);
+	Camera(const Camera& _kr);
+	Camera& operator= (const Camera& _rhs);
 // Member variables
 protected:
 	ECameraType m_eCameraType;

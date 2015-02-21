@@ -16,7 +16,6 @@
 #include <iostream>
 #include <stdio.h>
 #include <vector>
-#include "../Bin/Tools/LodePNG/lodepng.h"
 
 // Local Includes
 #include "openglrenderer.h"
@@ -37,7 +36,7 @@
 * @author Christopher Howlett
 *
 */
-CTexture::CTexture()
+Texture::Texture()
 :	m_uiTextureID(0)
 ,	m_bIsLoaded(false)
 ,	m_pRenderer(0)
@@ -52,7 +51,7 @@ CTexture::CTexture()
 * @author Christopher Howlett
 *
 */
-CTexture::~CTexture()
+Texture::~Texture()
 {
 	if(m_bIsLoaded)
 	{
@@ -71,7 +70,7 @@ CTexture::~CTexture()
 *
 */
 bool 
-CTexture::Initialise(COpenGLRenderer* _pRenderer, char* _pcFilename, unsigned int _uiTextureUnit)
+Texture::Initialise(COpenGLRenderer* _pRenderer, char* _pcFilename, unsigned int _uiTextureUnit)
 {
 	bool bResult = true;
 	int iFilenameLength = strlen(_pcFilename);
@@ -99,59 +98,59 @@ CTexture::Initialise(COpenGLRenderer* _pRenderer, char* _pcFilename, unsigned in
 *
 */
 bool
-CTexture::LoadFromPNG(COpenGLRenderer* _pRenderer, char* _pcFilename, unsigned int _uiTextureUnit)
+Texture::LoadFromPNG(COpenGLRenderer* _pRenderer, char* _pcFilename, unsigned int _uiTextureUnit)
 {
-	bool bResult = true;
-	
-	std::vector<unsigned char> imageData;
-	unsigned int iWidth;
-	unsigned int iHeight;
-	lodepng::decode(imageData, iWidth, iHeight, _pcFilename);
-
-	//Copy data to a buffer
-	unsigned char* pcBuffer = new unsigned char[imageData.size()];
-	for (unsigned int iChar = 0; iChar < imageData.size(); ++iChar)
-	{
-		pcBuffer[iChar] = imageData[iChar];
-	}
-
-	//Setup openGL Texture
-	_pRenderer->glActiveTexture(GL_TEXTURE0 + _uiTextureUnit);
-	glGenTextures(	1, &m_uiTextureID);
-	glBindTexture(	GL_TEXTURE_2D, m_uiTextureID); //Bind texture to ID
-	glTexImage2D(	GL_TEXTURE_2D,
-					0,
-					GL_RGBA,
-					static_cast<int>(iWidth),
-					static_cast<int>(iHeight),
-					0,
-					GL_BGRA,
-					GL_UNSIGNED_BYTE,
-					pcBuffer);
-
-	//Set to Wrap texture
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	//Set texture filtering
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
-	//Generate mipmaps
-	_pRenderer->glGenerateMipmap(GL_TEXTURE_2D);
-
-	if (m_uiTextureID == 0)
-	{
-		printf("Failed to load PNG: %s\n", _pcFilename); 
-		bResult = false;
-	}
-	else
-	{
-		printf("Loaded Texture: %s (%i x %i)\n", _pcFilename, iWidth, iHeight);
-		m_bIsLoaded = true;
-	}
-	delete[] pcBuffer;
-	pcBuffer = 0;
+	bool bResult = false;
+	//
+	//std::vector<unsigned char> imageData;
+	//unsigned int iWidth;
+	//unsigned int iHeight;
+	//lodepng::decode(imageData, iWidth, iHeight, _pcFilename);
+	//
+	////Copy data to a buffer
+	//unsigned char* pcBuffer = new unsigned char[imageData.size()];
+	//for (unsigned int iChar = 0; iChar < imageData.size(); ++iChar)
+	//{
+	//	pcBuffer[iChar] = imageData[iChar];
+	//}
+	//
+	////Setup openGL Texture
+	//glActiveTexture(GL_TEXTURE0 + _uiTextureUnit);
+	//glGenTextures(	1, &m_uiTextureID);
+	//glBindTexture(	GL_TEXTURE_2D, m_uiTextureID); //Bind texture to ID
+	//glTexImage2D(	GL_TEXTURE_2D,
+	//				0,
+	//				GL_RGBA,
+	//				static_cast<int>(iWidth),
+	//				static_cast<int>(iHeight),
+	//				0,
+	//				GL_BGRA,
+	//				GL_UNSIGNED_BYTE,
+	//				pcBuffer);
+	//
+	////Set to Wrap texture
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	//
+	////Set texture filtering
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	//
+	////Generate mipmaps
+	//glGenerateMipmap(GL_TEXTURE_2D);
+	//
+	//if (m_uiTextureID == 0)
+	//{
+	//	printf("Failed to load PNG: %s\n", _pcFilename); 
+	//	bResult = false;
+	//}
+	//else
+	//{
+	//	printf("Loaded Texture: %s (%i x %i)\n", _pcFilename, iWidth, iHeight);
+	//	m_bIsLoaded = true;
+	//}
+	//delete[] pcBuffer;
+	//pcBuffer = 0;
 
 	return bResult;
 }
@@ -167,7 +166,7 @@ CTexture::LoadFromPNG(COpenGLRenderer* _pRenderer, char* _pcFilename, unsigned i
 *
 */
 bool 
-CTexture::LoadFromTarga(COpenGLRenderer* _pRenderer, char* _pcFilename, unsigned int _uiTextureUnit)
+Texture::LoadFromTarga(COpenGLRenderer* _pRenderer, char* _pcFilename, unsigned int _uiTextureUnit)
 {
 	bool bResult = false;
 	FILE* pFile;
@@ -207,7 +206,7 @@ CTexture::LoadFromTarga(COpenGLRenderer* _pRenderer, char* _pcFilename, unsigned
 		fclose(pFile);
 		
 		//Setup openGL Texture
-		_pRenderer->glActiveTexture(GL_TEXTURE0 + _uiTextureUnit);
+		glActiveTexture(GL_TEXTURE0 + _uiTextureUnit);
 		glGenTextures(1, &m_uiTextureID);
 		glBindTexture(GL_TEXTURE_2D, m_uiTextureID); //Bind texture to ID
 		glTexImage2D(	GL_TEXTURE_2D, 
@@ -229,7 +228,7 @@ CTexture::LoadFromTarga(COpenGLRenderer* _pRenderer, char* _pcFilename, unsigned
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	
 		//Generate mipmaps
-		_pRenderer->glGenerateMipmap(GL_TEXTURE_2D);
+		glGenerateMipmap(GL_TEXTURE_2D);
 	
 		printf("Loaded %s %iBit texture (%i x %i)\n", _pcFilename, tTarga.bpp, tTarga.width, tTarga.height);
 		m_bIsLoaded = true;
@@ -247,7 +246,7 @@ CTexture::LoadFromTarga(COpenGLRenderer* _pRenderer, char* _pcFilename, unsigned
 *
 */
 unsigned int
-CTexture::GetTextureID() const
+Texture::GetTextureID() const
 {
 	return m_uiTextureID;
 }

@@ -1,11 +1,4 @@
 //
-// Bachelor of Software Engineering - Year 2
-// Media Design School
-// Auckland 
-// New Zealand
-//
-// (c) 2013 Media Design School
-//
 //  File Name   :   gameobject.h
 //  Description :   Class of CGameObject
 //  Author      :   Christopher Howlett
@@ -18,66 +11,74 @@
 #define __GAMEOBJECT_H__
 
 // Library Includes
+#include <vector>
+#include <glm/glm.hpp>
 
 // Local Includes
-#include <glm/glm.hpp>
+#include "transformcomponent.h"
 
 // Types
 
 // Constants
 
 // Prototypes
-class COpenGLRenderer;
-class CCamera;
+class OpenGLRenderer;
+class Camera;
+class BaseComponent;
 
-class CGameObject
+
+namespace Component
+{
+	class Transform;
+}
+
+class GameObject
 {
 public:
-	CGameObject();
-	virtual ~CGameObject();
-	
+	GameObject();
+	virtual ~GameObject();
+
 	virtual bool Initialise();
-	virtual void Draw(COpenGLRenderer* _pRenderer, CCamera* _pCamera);
-	virtual void Process(float _fDeltaTime);
+	virtual void Process( const float _fDeltaTime );
+	virtual Component::Transform& GetTransform( ){ return m_transform; } 
 
-	//Parent functions
-	virtual void ProcessParent(float _fDeltaTime);
-	virtual void SetParent(CGameObject* _pParent, glm::vec3* _pTargetOffset);	
+	//Transform functionality
+	virtual void AddChild( GameObject* _pChild );
+	virtual void SetParent( GameObject* _pParent );
 
-	//PRS Accessor functions
-	virtual void SetPosition(glm::vec3& _rVecPosition);
-	virtual glm::vec3& GetPosition();
-	virtual void SetRotation(glm::vec3& _rRotation);
-	virtual glm::vec3& GetRotation();
-	virtual void SetScale(glm::vec3& _rScale);
-	virtual glm::vec3& GetScale();
+	//Component functionality
+	virtual void AddComponent( BaseComponent* _pComponent );
+	virtual BaseComponent* GetComponentByName( char* _pName );
 
-	//Vector Accessor functions
-	virtual void SetForward(glm::vec3& _rVecPosition);
-	virtual glm::vec3& GetForward();
-	virtual void SetRight(glm::vec3& _rVecRight);
-	virtual glm::vec3& GetRight();
-	virtual void SetUp(glm::vec3& _rVecUp);
-	virtual glm::vec3& GetUp();
+	template <typename T>
+	T* GetComponent( )
+	{
+		for ( ComponentConstIterator iter = m_vecComponents.begin( ); iter != m_vecComponents.end( ); ++iter )
+		{
+			if ( typeid(*iter) == typeid(T) )
+			return *iter;
+		}
+		return 0;
+	}
+
+	//Useful typedefs
+	typedef std::vector< BaseComponent* >::iterator ComponentIterator;
+	typedef std::vector< BaseComponent* >::const_iterator ComponentConstIterator;
+
+	//virtual bool Initialise();
+	//virtual void Draw(OpenGLRenderer* _pRenderer, Camera* _pCamera);
+	//virtual void Process(float _fDeltaTime);
+	//
+	
 	
 private:
-	CGameObject(const CGameObject& _kr);
-	CGameObject& operator= (const CGameObject& _rhs);
+	GameObject(const GameObject& _kr);
+	GameObject& operator= (const GameObject& _rhs);
 	
 protected:
-	glm::mat4x4 m_matWorld;
-
-	glm::vec3 m_vecPosition;
-	glm::vec3 m_vecScale;
-	glm::vec3 m_vecRotation;
-
-	glm::vec3 m_vecForward;
-	glm::vec3 m_vecRight;
-	glm::vec3 m_vecUp;
-
-	bool m_bHasParent;
-	CGameObject* m_pParent;
-	glm::vec3 m_vecParentOffset;
+	//bool m_bHasParent;
+	std::vector< BaseComponent* > m_vecComponents;
+	Component::Transform m_transform;
 };
 
 #endif //__GAMEOBJECT_H__

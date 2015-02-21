@@ -17,13 +17,15 @@
 #include "defines.h"
 
 //Renderer interface
+class Window;
+
 class IRenderer
 {
 public:
 	IRenderer(){};
 	virtual ~IRenderer(){};
 
-	virtual bool Initialise(HWND _hWnd, int _iWindowWidth, int _iWindowHeight, TInputStruct* _pInput){ return true; };
+	virtual bool Initialise( Window* _pWindow, int _iWindowWidth, int _iWindowHeight, TInputStruct* _pInput){ return true; };
 	virtual bool InitialiseExtensions( HWND _hWnd ){ return false; }
 	virtual void CleanUp(){};
 	virtual void ExecuteOneFrame(float _fDeltaTick){};

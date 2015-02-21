@@ -28,12 +28,12 @@
 // Prototypes
 class COpenGLRenderer;
 
-class CTexture
+class Texture
 {
 //Member functions
 public:
-	CTexture();
-	~CTexture();
+	Texture();
+	~Texture();
 
 	bool Initialise(COpenGLRenderer* _pRenderer, char* _pcFilename, unsigned int _uiTextureUnit);
 	bool LoadFromPNG(COpenGLRenderer* _pRenderer, char* _pcFilename, unsigned int _uiTextureUnit);
@@ -42,8 +42,8 @@ public:
 	unsigned int GetTextureID() const;
 
 private:
-	CTexture(const CTexture& _krInstanceToCopy);
-	const CTexture& operator =(const CTexture& _krInstanceToCopy);
+	Texture(const Texture& _krInstanceToCopy);
+	const Texture& operator =(const Texture& _krInstanceToCopy);
 
 //Member variables
 private:

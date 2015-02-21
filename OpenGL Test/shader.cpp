@@ -52,15 +52,15 @@ CShader::CShader()
 */
 CShader::~CShader()
 {
-	m_pRenderer->glDetachShader(m_uiShaderProgram, m_uiVertexShader);
-	m_pRenderer->glDetachShader(m_uiShaderProgram, m_uiFragmentShader);
+	glDetachShader(m_uiShaderProgram, m_uiVertexShader);
+	glDetachShader(m_uiShaderProgram, m_uiFragmentShader);
 
 	//Delete shaders
-	m_pRenderer->glDeleteShader(m_uiVertexShader);
-	m_pRenderer->glDeleteShader(m_uiFragmentShader);
+	glDeleteShader(m_uiVertexShader);
+	glDeleteShader(m_uiFragmentShader);
 
 	//Delete program
-	m_pRenderer->glDeleteProgram(m_uiShaderProgram);
+	glDeleteProgram(m_uiShaderProgram);
 }
 /**
 *
@@ -86,12 +86,12 @@ CShader::InitialiseShader(COpenGLRenderer* _pRenderer, char* _pcVertexShader, ch
 	pcFragmentShaderBuffer = LoadShader(_pcFragmentShader);
 
 	//Create vertex and fragment shader objects
-	m_uiVertexShader = _pRenderer->glCreateShader(GL_VERTEX_SHADER);
-	m_uiFragmentShader = _pRenderer->glCreateShader(GL_FRAGMENT_SHADER);
+	m_uiVertexShader = glCreateShader(GL_VERTEX_SHADER);
+	m_uiFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
 	//Copy shader strings into shaders
-	_pRenderer->glShaderSource(m_uiVertexShader, 1, &pcVertexShaderBuffer, NULL);
-	_pRenderer->glShaderSource(m_uiFragmentShader, 1, &pcFragmentShaderBuffer, NULL);
+	glShaderSource(m_uiVertexShader, 1, &pcVertexShaderBuffer, NULL);
+	glShaderSource(m_uiFragmentShader, 1, &pcFragmentShaderBuffer, NULL);
 
 	delete[] pcVertexShaderBuffer;
 	delete[] pcFragmentShaderBuffer;
@@ -99,18 +99,18 @@ CShader::InitialiseShader(COpenGLRenderer* _pRenderer, char* _pcVertexShader, ch
 	pcFragmentShaderBuffer = 0;
 
 	//Compile shaders
-	_pRenderer->glCompileShader(m_uiVertexShader);
-	_pRenderer->glCompileShader(m_uiFragmentShader);
+	glCompileShader(m_uiVertexShader);
+	glCompileShader(m_uiFragmentShader);
 	
 	//Check success of initialisation
-	_pRenderer->glGetShaderiv(m_uiVertexShader, GL_COMPILE_STATUS, &iResult);
+	glGetShaderiv(m_uiVertexShader, GL_COMPILE_STATUS, &iResult);
 	if(iResult != 1)
 	{
 		OutputShaderErrorMessage(_pRenderer, m_uiVertexShader);
 		Error(L"Vertex shader failed initialisation");
 		bSuccess = false;
 	}
-	_pRenderer->glGetShaderiv(m_uiFragmentShader, GL_COMPILE_STATUS, &iResult);
+	glGetShaderiv(m_uiFragmentShader, GL_COMPILE_STATUS, &iResult);
 	if(iResult != 1)
 	{
 		OutputShaderErrorMessage(_pRenderer, m_uiFragmentShader);
@@ -119,21 +119,21 @@ CShader::InitialiseShader(COpenGLRenderer* _pRenderer, char* _pcVertexShader, ch
 	}
 
 	//Create shader program object
-	m_uiShaderProgram = _pRenderer->glCreateProgram();
+	m_uiShaderProgram = glCreateProgram();
 
 	//Attach shaders to program object
-	_pRenderer->glAttachShader(m_uiShaderProgram, m_uiVertexShader);
-	_pRenderer->glAttachShader(m_uiShaderProgram, m_uiFragmentShader);
+	glAttachShader(m_uiShaderProgram, m_uiVertexShader);
+	glAttachShader(m_uiShaderProgram, m_uiFragmentShader);
 
 	//Bind shader input variables
-	_pRenderer->glBindAttribLocation(m_uiShaderProgram, 0, "inputPosition");
-	_pRenderer->glBindAttribLocation(m_uiShaderProgram, 1, "inputTexCoord");
-	_pRenderer->glBindAttribLocation(m_uiShaderProgram, 2, "inputNormal");
+	glBindAttribLocation(m_uiShaderProgram, 0, "inputPosition");
+	glBindAttribLocation(m_uiShaderProgram, 1, "inputTexCoord");
+	glBindAttribLocation(m_uiShaderProgram, 2, "inputNormal");
 	//Link shader program
-	_pRenderer->glLinkProgram(m_uiShaderProgram);
+	glLinkProgram(m_uiShaderProgram);
 
 	//Check success of link creation
-	//_pRenderer->glGetProgramiv(m_uiShaderProgram, GL_LINK_STATUS, &iResult);
+	//glGetProgramiv(m_uiShaderProgram, GL_LINK_STATUS, &iResult);
 	if(iResult != 1)
 	{
 		Error(L"Shader linking failed!!");
@@ -194,7 +194,7 @@ CShader::LoadShader(char* _pcFilename)
 void 
 CShader::SetShader(COpenGLRenderer* _pRenderer)
 {
-	_pRenderer->glUseProgram(m_uiShaderProgram);
+	glUseProgram(m_uiShaderProgram);
 }
 /**
 *
@@ -207,8 +207,8 @@ CShader::SetShader(COpenGLRenderer* _pRenderer)
 void 
 CShader::SetShaderMatrix(COpenGLRenderer* _pRenderer, char* _pcVariableName, float* _pMatrix)
 {
-	unsigned int uiLocation = _pRenderer->glGetUniformLocation(m_uiShaderProgram, _pcVariableName);
-	_pRenderer->glUniformMatrix4fv(uiLocation, 1, false, _pMatrix);
+	unsigned int uiLocation = glGetUniformLocation(m_uiShaderProgram, _pcVariableName);
+	glUniformMatrix4fv(uiLocation, 1, false, _pMatrix);
 }
 /**
 *
@@ -221,8 +221,8 @@ CShader::SetShaderMatrix(COpenGLRenderer* _pRenderer, char* _pcVariableName, flo
 void 
 CShader::SetShaderInteger(COpenGLRenderer* _pRenderer, char* _pcVariableName, int _iInteger)
 {
-	unsigned int uiLocation = _pRenderer->glGetUniformLocation(m_uiShaderProgram, _pcVariableName);
-	_pRenderer->glUniform1i(uiLocation, _iInteger);
+	unsigned int uiLocation = glGetUniformLocation(m_uiShaderProgram, _pcVariableName);
+	glUniform1i(uiLocation, _iInteger);
 }
 /**
 *
@@ -235,8 +235,8 @@ CShader::SetShaderInteger(COpenGLRenderer* _pRenderer, char* _pcVariableName, in
 void 
 CShader::SetShaderFloat(COpenGLRenderer* _pRenderer, char* _pcVariableName, float _fFloat)
 {
-	unsigned int uiLocation = _pRenderer->glGetUniformLocation(m_uiShaderProgram, _pcVariableName);
-	_pRenderer->glUniform1f(uiLocation, _fFloat);
+	unsigned int uiLocation = glGetUniformLocation(m_uiShaderProgram, _pcVariableName);
+	glUniform1f(uiLocation, _fFloat);
 }
 /**
 *
@@ -247,10 +247,10 @@ CShader::SetShaderFloat(COpenGLRenderer* _pRenderer, char* _pcVariableName, floa
 *
 */
 void 
-CShader::SetShaderVector3(COpenGLRenderer* _pRenderer, char* _pcVariableName, TVector3& _rVector)
+CShader::SetShaderVector3(COpenGLRenderer* _pRenderer, char* _pcVariableName, glm::vec3& _rVector)
 {
-	unsigned int uiLocation = _pRenderer->glGetUniformLocation(m_uiShaderProgram, _pcVariableName);
-	_pRenderer->glUniform3fv(uiLocation, 1, reinterpret_cast<float*>(&_rVector));
+	unsigned int uiLocation = glGetUniformLocation(m_uiShaderProgram, _pcVariableName);
+	glUniform3fv(uiLocation, 1, reinterpret_cast<float*>(&_rVector));
 }
 /**
 *
@@ -261,10 +261,10 @@ CShader::SetShaderVector3(COpenGLRenderer* _pRenderer, char* _pcVariableName, TV
 *
 */
 void 
-CShader::SetShaderVector4(COpenGLRenderer* _pRenderer, char* _pcVariableName, TVector4& _rVector)
+CShader::SetShaderVector4(COpenGLRenderer* _pRenderer, char* _pcVariableName, glm::vec4& _rVector)
 {
-	unsigned int uiLocation = _pRenderer->glGetUniformLocation(m_uiShaderProgram, _pcVariableName);
-	_pRenderer->glUniform4fv(uiLocation, 1, reinterpret_cast<float*>(&_rVector));
+	unsigned int uiLocation = glGetUniformLocation(m_uiShaderProgram, _pcVariableName);
+	glUniform4fv(uiLocation, 1, reinterpret_cast<float*>(&_rVector));
 }
 /**
 *
@@ -280,13 +280,13 @@ CShader::OutputShaderErrorMessage(COpenGLRenderer* _pRenderer, unsigned int _uiS
 	char* pcInfoLog;
 	ofstream fOutputFile;
 
-	_pRenderer->glGetShaderiv(_uiShaderId, GL_INFO_LOG_LENGTH, &iLogSize);
+	glGetShaderiv(_uiShaderId, GL_INFO_LOG_LENGTH, &iLogSize);
 
 	// Increment the size by one to handle also the null terminator
 	++iLogSize;
 
 	pcInfoLog = new char[iLogSize];
-	_pRenderer->glGetShaderInfoLog(_uiShaderId, iLogSize, NULL, pcInfoLog);
+	glGetShaderInfoLog(_uiShaderId, iLogSize, NULL, pcInfoLog);
 
 	// Open a error log file
 	fOutputFile.open("shader-error.txt");

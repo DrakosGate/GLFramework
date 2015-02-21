@@ -35,20 +35,23 @@ enum ERendererType
 
 // Prototypes
 class IRenderer;
-class CClock;
+class Clock;
 
-class CWindow
+class Window
 {
 public:
-	CWindow();
-	virtual ~CWindow();
+	Window();
+	virtual ~Window();
 
 	virtual bool Initialise(HINSTANCE _hInstance, ERendererType _eRenderer);
 	void Run();
 	void ExecuteOneFrame();
 
 	HINSTANCE GetInstance();
-	HWND GetWindowHandle();
+	HWND GetHandle();
+
+	const unsigned int GetWindowWidth( ) const { return m_iWindowWidth; }
+	const unsigned int GetWindowHeight( ) const { return m_iWindowHeight; }
 
 	//This windows message proc
 	virtual LRESULT msgProc(UINT msg, WPARAM wParam, LPARAM lParam);
@@ -56,8 +59,8 @@ public:
 protected:
 	bool InitialiseMainWindow( wchar_t* _pTitle, int _iX, int _iY, int _iWidth, int _iHeight, bool _bFullscreen, bool _bVSync );
 private:
-	CWindow(const CWindow& _kr);
-	CWindow& operator= (const CWindow& _rhs);
+	Window(const Window& _kr);
+	Window& operator= (const Window& _rhs);
 
 	
 protected:
@@ -68,11 +71,10 @@ protected:
 	HWND m_hMainWnd;
 	bool m_bIsFullscreen;
 
-	CClock* m_pClock;
+	Clock* m_pClock;
 
-	// Derived class should set these in derived constructor to customize starting values.
-	int m_iClientWidth;
-	int m_iClientHeight;
+	unsigned int m_iWindowWidth;
+	unsigned int m_iWindowHeight;
 };
 
 #endif //__WINDOW_H__

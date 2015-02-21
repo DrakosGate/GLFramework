@@ -19,7 +19,7 @@
 * @author Christopher Howlett
 *
 */
-CCamera::CCamera()
+Camera::Camera()
 :	m_fFOV(0.0f)
 ,	m_fNearClip(0.0f)
 ,	m_fFarClip(0.0f)
@@ -44,7 +44,7 @@ CCamera::CCamera()
 * @author Christopher Howlett
 *
 */
-CCamera::~CCamera()
+Camera::~Camera()
 {
 
 }
@@ -57,7 +57,7 @@ CCamera::~CCamera()
 *
 */
 bool 
-CCamera::Initialise(	float _fFOV,
+Camera::Initialise(	float _fFOV,
 						float _fAspectRatio,
 						float _fNearClip,
 						float _fFarClip,
@@ -100,11 +100,11 @@ CCamera::Initialise(	float _fFOV,
 *
 */
 void
-CCamera::Process(float _fDeltaTick)
+Camera::Process(const float _fDeltaTick)
 {
 	//Recalculate view matrix
-	m_matView = glm::lookAt(m_vecPosition, m_vecPosition + m_vecForward, m_vecUp);
-	//NMatrix::Transformation(m_matWorld, m_vecPosition, m_vecScale, m_vecRotation);
+	m_matView = glm::lookAt( GetTransform( ).GetPosition( ), GetTransform( ).GetPosition( ) + GetTransform( ).GetForward( ), GetTransform( ).GetUp( ) );
+	//NMatrix::Transformation(m_matWorld, GetTransform( ).GetPosition( ), m_vecScale, m_vecRotation);
 }
 /**
 *
@@ -114,98 +114,77 @@ CCamera::Process(float _fDeltaTick)
 *
 */
 void 
-CCamera::ProcessInput(float _fDeltaTick)
+Camera::ProcessInput(const float _fDeltaTick)
 {
 	float fMouseSensitivity = 0.005f;
 	//Process parented camera controls
-	if(m_bHasParent)
-	{
-		if(m_pInput->bCtrl)
-		{
-			m_vecForward += m_vecRight * (m_pInput->fMouseX * fMouseSensitivity) * _fDeltaTick;
-			//m_vecForward += m_vecUp * (m_pInput->fMouseY * fMouseSensitivity) * _fDeltaTick;
-			glm::normalize( m_vecForward );
-			glm::vec3 targetPosition = m_pParent->GetPosition() + ((m_pParent->GetForward() * m_vecParentOffset.z) + (m_vecUp * m_vecParentOffset.y));	
-			m_vecPosition = targetPosition;
-		}
-		else
-		{
-			ProcessParent(_fDeltaTick);
-		}
-	}
-	//Process free look camera controls
-	else
-	{
-		if(m_pInput->bW)
-		{
-			m_vecVelocity += m_vecForward * m_fMovementSpeed * m_fSpeedBoost * _fDeltaTick;
-		}
-		if(m_pInput->bS)
-		{
-			m_vecVelocity -= m_vecForward * m_fMovementSpeed * m_fSpeedBoost * _fDeltaTick;
-		}
-		if(m_pInput->bA)
-		{
-			m_vecVelocity -= m_vecRight * m_fMovementSpeed * m_fSpeedBoost * _fDeltaTick;
-		}
-		if(m_pInput->bD)
-		{
-			m_vecVelocity += m_vecRight * m_fMovementSpeed * m_fSpeedBoost * _fDeltaTick;
-		}
-		if(m_pInput->bSpace)
-		{
-			m_vecVelocity += m_vecUp * m_fMovementSpeed * m_fSpeedBoost * _fDeltaTick;
-		}
-		if(m_pInput->bCtrl)
-		{
-			m_vecVelocity -= m_vecUp * m_fMovementSpeed * m_fSpeedBoost * _fDeltaTick;
-		}
-		if(m_pInput->bRightMouseDown)
-		{
-			//Mouse camera rotation
-			m_vecForward += m_vecRight * (m_pInput->fMouseX * fMouseSensitivity) * _fDeltaTick;
-			//m_vecForward += m_vecUp * (m_pInput->fMouseY * fMouseSensitivity * 0.5f) * _fDeltaTick;
-		}
-		if(m_pInput->bShift)
-		{
-			m_fSpeedBoost = 10.0f;
-		}
-		else
-		{
-			m_fSpeedBoost = 1.0f;
-		}
-		
-		//Recalculate vectors
-		m_vecUp = glm::vec3(0.0f, 1.0f, 0.0f);//NVector::Cross(m_vecForward, TVector3(1.0f, 0.0f, 0.0f));
-		m_vecRight = glm::cross(m_vecForward, m_vecUp);
-		glm::normalize( m_vecForward );
-		glm::normalize( m_vecRight );
-		glm::normalize( m_vecUp );
-	
-		m_vecPosition += m_vecVelocity * _fDeltaTick;
-		m_vecVelocity *= 0.9f;
-	}
-}
-/**
-*
-* Processes Parent functionality on this gameobject
-*
-* @author Christopher Howlett
-* @param Game time elapsed
-*
-*/
-void 
-CCamera::ProcessParent(float _fDeltaTime)
-{
-	//Move object relative to parent
-	m_vecForward += m_pParent->GetForward() * m_fRotationSpeed * _fDeltaTime;
-	glm::normalize( m_vecForward );
-	//m_vecForward = m_pParent->GetForward();
-	m_vecUp = m_pParent->GetUp();
-	m_vecRight = m_pParent->GetRight();
-
-	glm::vec3 targetPosition = (m_pParent->GetPosition() + (m_pParent->GetForward() * m_vecParentOffset.z) + (m_vecUp * m_vecParentOffset.y));	
-	m_vecPosition = targetPosition;
+	//if(m_bHasParent)
+	//{
+	//	if(m_pInput->bCtrl)
+	//	{
+	//		GetTransform( ).GetForward( ) += GetTransform( ).GetRight( ) * (m_pInput->fMouseX * fMouseSensitivity) * _fDeltaTick;
+	//		//GetTransform( ).GetForward( ) += GetTransform( ).GetUp( ) * (m_pInput->fMouseY * fMouseSensitivity) * _fDeltaTick;
+	//		glm::normalize( GetTransform( ).GetForward( ) );
+	//		glm::vec3 targetPosition = m_pParent->GetPosition() + ((m_pParent->GetForward() * m_vecParentOffset.z) + (GetTransform( ).GetUp( ) * m_vecParentOffset.y));	
+	//		GetTransform( ).GetPosition( ) = targetPosition;
+	//	}
+	//	else
+	//	{
+	//		ProcessParent(_fDeltaTick);
+	//	}
+	//}
+	////Process free look camera controls
+	//else
+	//{
+	//	if(m_pInput->bW)
+	//	{
+	//		m_vecVelocity += GetTransform( ).GetForward( ) * m_fMovementSpeed * m_fSpeedBoost * _fDeltaTick;
+	//	}
+	//	if(m_pInput->bS)
+	//	{
+	//		m_vecVelocity -= GetTransform( ).GetForward( ) * m_fMovementSpeed * m_fSpeedBoost * _fDeltaTick;
+	//	}
+	//	if(m_pInput->bA)
+	//	{
+	//		m_vecVelocity -= GetTransform( ).GetRight( ) * m_fMovementSpeed * m_fSpeedBoost * _fDeltaTick;
+	//	}
+	//	if(m_pInput->bD)
+	//	{
+	//		m_vecVelocity += GetTransform( ).GetRight( ) * m_fMovementSpeed * m_fSpeedBoost * _fDeltaTick;
+	//	}
+	//	if(m_pInput->bSpace)
+	//	{
+	//		m_vecVelocity += GetTransform( ).GetUp( ) * m_fMovementSpeed * m_fSpeedBoost * _fDeltaTick;
+	//	}
+	//	if(m_pInput->bCtrl)
+	//	{
+	//		m_vecVelocity -= GetTransform( ).GetUp( ) * m_fMovementSpeed * m_fSpeedBoost * _fDeltaTick;
+	//	}
+	//	if(m_pInput->bRightMouseDown)
+	//	{
+	//		//Mouse camera rotation
+	//		GetTransform( ).GetForward( ) += GetTransform( ).GetRight( ) * (m_pInput->fMouseX * fMouseSensitivity) * _fDeltaTick;
+	//		//GetTransform( ).GetForward( ) += GetTransform( ).GetUp( ) * (m_pInput->fMouseY * fMouseSensitivity * 0.5f) * _fDeltaTick;
+	//	}
+	//	if(m_pInput->bShift)
+	//	{
+	//		m_fSpeedBoost = 10.0f;
+	//	}
+	//	else
+	//	{
+	//		m_fSpeedBoost = 1.0f;
+	//	}
+	//	
+	//	//Recalculate vectors
+	//	GetTransform( ).GetUp( ) = glm::vec3(0.0f, 1.0f, 0.0f);//NVector::Cross(GetTransform( ).GetForward( ), glm::vec3(1.0f, 0.0f, 0.0f));
+	//	GetTransform( ).GetRight( ) = glm::cross(GetTransform( ).GetForward( ), GetTransform( ).GetUp( ));
+	//	glm::normalize( GetTransform( ).GetForward( ) );
+	//	glm::normalize( GetTransform( ).GetRight( ) );
+	//	glm::normalize( GetTransform( ).GetUp( ) );
+	//
+	//	GetTransform( ).GetPosition( ) += m_vecVelocity * _fDeltaTick;
+	//	m_vecVelocity *= 0.9f;
+	//}
 }
 /**
 *
@@ -216,7 +195,7 @@ CCamera::ProcessParent(float _fDeltaTime)
 *
 */
 void 
-CCamera::SetInput(TInputStruct* _pInput)
+Camera::SetInput(TInputStruct* _pInput)
 {
 	m_pInput = _pInput;
 }
@@ -228,7 +207,7 @@ CCamera::SetInput(TInputStruct* _pInput)
 *
 */
 void 
-CCamera::SetClipPlanes(float _fNear, float _fFar)
+Camera::SetClipPlanes(float _fNear, float _fFar)
 {
 	//Set members
 	m_fNearClip = _fNear;
@@ -245,7 +224,7 @@ CCamera::SetClipPlanes(float _fNear, float _fFar)
 *
 */
 float 
-CCamera::GetNearPlane() const
+Camera::GetNearPlane() const
 {
 	return m_fNearClip;
 }
@@ -258,7 +237,7 @@ CCamera::GetNearPlane() const
 *
 */
 float 
-CCamera::GetFarPlane() const
+Camera::GetFarPlane() const
 {
 	return m_fFarClip;
 }
@@ -270,7 +249,7 @@ CCamera::GetFarPlane() const
 *
 */
 void 
-CCamera::SetFOV(float _fFOV)
+Camera::SetFOV(float _fFOV)
 {
 	//Set members
 	m_fFOV = _fFOV;
@@ -287,7 +266,7 @@ CCamera::SetFOV(float _fFOV)
 *
 */
 void 
-CCamera::SetView3D(	glm::vec3& _rVecRight,
+Camera::SetView3D(	glm::vec3& _rVecRight,
 					glm::vec3& _rVecUp,
 					glm::vec3& _rVecDir,
 					glm::vec3& _rVecPos)
@@ -323,19 +302,19 @@ CCamera::SetView3D(	glm::vec3& _rVecRight,
 *
 */
 void 
-CCamera::SetViewLookAt(	glm::vec3& _rVecPos,
+Camera::SetViewLookAt(	glm::vec3& _rVecPos,
 							glm::vec3& _rVecLook,
 							glm::vec3& _rVecUp )
 {
 	//Calculate right vector
-	m_vecRight = glm::cross(m_vecForward, m_vecUp);
-	glm::normalize( m_vecRight );
+	GetTransform( ).SetRight( glm::cross( GetTransform( ).GetForward( ), GetTransform( ).GetUp() ) );
+	glm::normalize( GetTransform( ).GetRight() );
 	
 	//Calculate up vector
-	glm::normalize( m_vecUp );
+	glm::normalize( GetTransform( ).GetUp() );
 	
 	//Call SetView3D
-	SetView3D(m_vecRight, m_vecUp, m_vecForward, m_vecPosition);
+	SetView3D( GetTransform( ).GetRight( ), GetTransform( ).GetUp( ), GetTransform( ).GetForward( ), GetTransform( ).GetPosition( ) );
 }
 
 /**
@@ -347,7 +326,7 @@ CCamera::SetViewLookAt(	glm::vec3& _rVecPos,
 *
 */
 void 
-CCamera::SetViewMatrix(glm::mat4x4& _rMatView)
+Camera::SetViewMatrix(glm::mat4x4& _rMatView)
 {
 	//Store view matrix
 	m_matView = _rMatView;
@@ -361,7 +340,7 @@ CCamera::SetViewMatrix(glm::mat4x4& _rMatView)
 *
 */
 void 
-CCamera::SetProjMatrix(glm::mat4x4& _rMatProj)
+Camera::SetProjMatrix(glm::mat4x4& _rMatProj)
 {
 	//Store projection matrix
 	m_matProj = _rMatProj;
@@ -375,7 +354,7 @@ CCamera::SetProjMatrix(glm::mat4x4& _rMatProj)
 *
 */
 glm::mat4x4& 
-CCamera::GetViewMatrix()
+Camera::GetViewMatrix()
 {
 	return m_matView;
 }
@@ -388,7 +367,7 @@ CCamera::GetViewMatrix()
 *
 */
 glm::mat4x4& 
-CCamera::GetProjectionMatrix()
+Camera::GetProjectionMatrix()
 {
 	return m_matProj;
 }
@@ -401,7 +380,7 @@ CCamera::GetProjectionMatrix()
 *
 */
 glm::mat4x4& 
-CCamera::GetWorldMatrix()
+Camera::GetWorldMatrix()
 {
 	return m_matWorld;
 }
@@ -415,11 +394,11 @@ CCamera::GetWorldMatrix()
 *
 */
 void  
-CCamera::Calculate3DMouseCoordinates(glm::vec2& _rVecMouse, TRay& _rRay)
+Camera::Calculate3DMouseCoordinates(glm::vec2& _rVecMouse, TRay& _rRay)
 {
-	glm::vec3 h = glm::cross(m_vecForward, m_vecUp);
+	glm::vec3 h = glm::cross(GetTransform( ).GetForward( ), GetTransform( ).GetUp( ));
 	glm::normalize( h );
-	glm::vec3 v = glm::cross(h, m_vecForward);
+	glm::vec3 v = glm::cross(h, GetTransform( ).GetForward( ));
 	glm::normalize( v );
 	
 	//FOV to radians
@@ -435,10 +414,10 @@ CCamera::Calculate3DMouseCoordinates(glm::vec2& _rVecMouse, TRay& _rRay)
 	_rVecMouse.y /= static_cast<float>(m_iScreenHeight * 0.5f);
 	
 	//Calculate intersection with viewport near plane
-	_rRay.vecPosition = m_vecPosition + (m_vecForward * m_fNearClip) + (h * _rVecMouse.x) + (v * _rVecMouse.y);
+	_rRay.vecPosition = GetTransform( ).GetPosition( ) + ( GetTransform( ).GetForward( ) * m_fNearClip ) + (h * _rVecMouse.x) + (v * _rVecMouse.y);
 	
 	//Calculate ray direction
-	_rRay.vecDirection = _rRay.vecPosition - m_vecPosition;
+	_rRay.vecDirection = _rRay.vecPosition - GetTransform( ).GetPosition( );
 	glm::normalize( _rRay.vecDirection );
-	//_rRay.vecPosition += m_vecPosition;
+	//_rRay.vecPosition += GetTransform( ).GetPosition( );
 }
