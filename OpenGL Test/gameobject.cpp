@@ -1,18 +1,6 @@
-//
-// Bachelor of Software Engineering - Year 2
-// Media Design School
-// Auckland 
-// New Zealand
-//
-// (c) 2013 Media Design School
-//
-//  File Name   :   gameobject.cpp
-//  Description :   Code for Class CGameObject
-//  Author      :   Christopher Howlett
-//  Mail        :   drakos_gate@yahoo.com
-//
 
 // Library Includes
+#include <glm/gtc/matrix_transform.hpp>
 
 // Local Includes
 
@@ -35,14 +23,14 @@ CGameObject::CGameObject()
 :	m_pParent(0)
 ,	m_bHasParent(false)
 {
-	NMatrix::Identity(m_matWorld);
+	m_matWorld = glm::mat4(1.0f);
 	m_vecPosition *= 0.0f;
 	m_vecScale *= 0.0f;
 	m_vecRotation *= 0.0f;
 	
-	m_vecForward = TVector3(0.0f, 0.0f, 1.0f);
-	m_vecRight = TVector3(1.0f, 0.0f, 0.0f);
-	m_vecUp = TVector3(0.0f, 1.0f, 0.0f);
+	m_vecForward = glm::vec3(0.0f, 0.0f, 1.0f);
+	m_vecRight = glm::vec3(1.0f, 0.0f, 0.0f);
+	m_vecUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
 	m_vecParentOffset *= 0.0f;
 }
@@ -95,7 +83,13 @@ CGameObject::Draw(COpenGLRenderer* _pRenderer, CCamera* _pCamera)
 void 
 CGameObject::Process(float _fDeltaTime)
 {
-	NMatrix::Transformation(m_matWorld, m_vecPosition, m_vecScale, m_vecRotation);
+	m_matWorld = glm::translate(glm::mat4(1.0f), m_vecPosition);
+
+	m_matWorld = glm::rotate(m_matWorld, m_vecRotation.x, glm::vec3(0.0f, 1.0f, 0.0f));
+	m_matWorld = glm::rotate(m_matWorld, m_vecRotation.y, glm::vec3(-1.0f, 0.0f, 0.0f));
+	m_matWorld = glm::rotate(m_matWorld, m_vecRotation.z, glm::vec3(0.0f, 1.0f, 0.0f));
+
+	m_matWorld = glm::scale(m_matWorld, m_vecScale);
 }
 /**
 *
@@ -112,9 +106,9 @@ CGameObject::ProcessParent(float _fDeltaTime)
 	{
 		//Move object relative to parent
 		m_vecPosition = m_pParent->GetPosition();
-		m_vecPosition += m_vecRight * m_vecParentOffset.fX;
-		m_vecPosition += m_vecUp * m_vecParentOffset.fY;
-		m_vecPosition += m_vecForward * m_vecParentOffset.fZ;
+		m_vecPosition += m_vecRight * m_vecParentOffset.x;
+		m_vecPosition += m_vecUp * m_vecParentOffset.y;
+		m_vecPosition += m_vecForward * m_vecParentOffset.z;
 	}
 }
 /**
@@ -126,7 +120,7 @@ CGameObject::ProcessParent(float _fDeltaTime)
 *
 */
 void 
-CGameObject::SetParent(CGameObject* _pParent, TVector3* _pTargetOffset)
+CGameObject::SetParent(CGameObject* _pParent, glm::vec3* _pTargetOffset)
 {
 	if(_pParent)
 	{
@@ -150,7 +144,7 @@ CGameObject::SetParent(CGameObject* _pParent, TVector3* _pTargetOffset)
 *
 */
 void 
-CGameObject::SetPosition(TVector3& _rVecPosition)
+CGameObject::SetPosition(glm::vec3& _rVecPosition)
 {
 	m_vecPosition = _rVecPosition;
 }
@@ -162,7 +156,7 @@ CGameObject::SetPosition(TVector3& _rVecPosition)
 * @return Gameobject position
 *
 */
-TVector3& 
+glm::vec3& 
 CGameObject::GetPosition()
 {
 	return m_vecPosition;
@@ -176,7 +170,7 @@ CGameObject::GetPosition()
 *
 */
 void 
-CGameObject::SetRotation(TVector3& _rRotation)
+CGameObject::SetRotation(glm::vec3& _rRotation)
 {
 	m_vecRotation = _rRotation;
 }
@@ -188,7 +182,7 @@ CGameObject::SetRotation(TVector3& _rRotation)
 * @return Gameobject rotation
 *
 */
-TVector3& 
+glm::vec3& 
 CGameObject::GetRotation()
 {
 	return m_vecRotation;
@@ -202,7 +196,7 @@ CGameObject::GetRotation()
 *
 */
 void 
-CGameObject::SetScale(TVector3& _rScale)
+CGameObject::SetScale(glm::vec3& _rScale)
 {
 	m_vecScale = _rScale;
 }
@@ -214,7 +208,7 @@ CGameObject::SetScale(TVector3& _rScale)
 * @return Gameobject scale
 *
 */
-TVector3& 
+glm::vec3& 
 CGameObject::GetScale()
 {
 	return m_vecScale;
@@ -228,10 +222,10 @@ CGameObject::GetScale()
 *
 */
 void 
-CGameObject::SetForward(TVector3& _rForward)
+CGameObject::SetForward(glm::vec3& _rForward)
 {
 	m_vecForward = _rForward;
-	m_vecForward.Normalise();
+	glm::normalize( m_vecForward );
 }
 /**
 *
@@ -241,10 +235,10 @@ CGameObject::SetForward(TVector3& _rForward)
 * @return Gameobject Forward
 *
 */
-TVector3& 
+glm::vec3& 
 CGameObject::GetForward()
 {
-	m_vecForward.Normalise();
+	glm::normalize( m_vecForward );
 	return m_vecForward;
 }
 /**
@@ -256,10 +250,10 @@ CGameObject::GetForward()
 *
 */
 void 
-CGameObject::SetRight(TVector3& _rRight)
+CGameObject::SetRight(glm::vec3& _rRight)
 {
 	m_vecRight = _rRight;
-	m_vecRight.Normalise();
+	glm::normalize( m_vecRight );
 }
 /**
 *
@@ -269,10 +263,10 @@ CGameObject::SetRight(TVector3& _rRight)
 * @return Gameobject Right
 *
 */
-TVector3& 
+glm::vec3& 
 CGameObject::GetRight()
 {
-	m_vecRight.Normalise();
+	glm::normalize( m_vecRight );
 	return m_vecRight;
 }
 /**
@@ -284,10 +278,10 @@ CGameObject::GetRight()
 *
 */
 void 
-CGameObject::SetUp(TVector3& _rUp)
+CGameObject::SetUp(glm::vec3& _rUp)
 {
 	m_vecUp = _rUp;
-	m_vecUp.Normalise();
+	glm::normalize( m_vecUp );
 }
 /**
 *
@@ -297,9 +291,9 @@ CGameObject::SetUp(TVector3& _rUp)
 * @return Gameobject Up
 *
 */
-TVector3& 
+glm::vec3& 
 CGameObject::GetUp()
 {
-	m_vecUp.Normalise();
+	glm::normalize( m_vecUp );
 	return m_vecUp;
 }

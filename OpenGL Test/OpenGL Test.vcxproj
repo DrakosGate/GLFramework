@@ -41,19 +41,17 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\Bin\Tools\rapidxml-1.13;..\Bin\glew-1.10.0\include;C:\Program Files %28x86%29\Visual Leak Detector\include;C:\Program Files %28x86%29\glut-3.7\include;$(IncludePath)</IncludePath>
-    <LibraryPath>..\Bin\glew-1.10.0\lib\Release\Win32;C:\Users\user\Documents\Visual Studio 2010\Projects\OpenGL Framework\Bin\External Libraries\lpng162;C:\Program Files %28x86%29\Visual Leak Detector\lib\Win32;C:\Program Files %28x86%29\glut-3.7\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\Bin\glm;..\Bin\Tools\rapidxml-1.13;..\Bin\glew-1.12.0\include;C:\Program Files %28x86%29\Visual Leak Detector\include;$(WindowsSDK_IncludePath)\Include;$(IncludePath)</IncludePath>
     <OutDir>..\Test\</OutDir>
     <IntDir>..\Obj\Debug\</IntDir>
-    <SourcePath>C:\Users\Christopher\Desktop\GLFramework\Bin\Tools\LodePNG;$(SourcePath)</SourcePath>
+    <LibraryPath>C:\Program Files %28x86%29\Visual Leak Detector\lib\Win32;..\Bin\glew-1.12.0\lib\Release\Win32;$(WindowsSDK_IncludePath)\Lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>..\Bin\</OutDir>
     <IntDir>..\Obj\Release\</IntDir>
-    <IncludePath>..\Bin\Tools\rapidxml-1.13;..\Bin\glew-1.10.0\include;C:\Program Files %28x86%29\Visual Leak Detector\include;$(IncludePath)</IncludePath>
-    <LibraryPath>..\Bin\glew-1.10.0\lib\Release\Win32;C:\Program Files %28x86%29\Visual Leak Detector\lib\Win32;$(LibraryPath)</LibraryPath>
-    <SourcePath>C:\Users\Christopher\Desktop\GLFramework\Bin\Tools\LodePNG;$(SourcePath)</SourcePath>
+    <IncludePath>..\Bin\glm;..\Bin\Tools\rapidxml-1.13;..\Bin\glew-1.12.0\include;C:\Program Files %28x86%29\Visual Leak Detector\include;$(WindowsSDK_IncludePath)\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files %28x86%29\Visual Leak Detector\lib\Win32;..\Bin\glew-1.12.0\lib\Release\Win32;$(WindowsSDK_IncludePath)\Lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -61,7 +59,6 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -77,7 +74,6 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -95,64 +91,23 @@
     <None Include="..\Bin\Shaders\texture.vs" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Bin\Tools\LodePNG\lodepng.h" />
     <ClInclude Include="camera.h" />
-    <ClInclude Include="chrismaths.h" />
     <ClInclude Include="clock.h" />
     <ClInclude Include="consolewindow.h" />
     <ClInclude Include="defines.h" />
-    <ClInclude Include="directionallight.h" />
-    <ClInclude Include="editordefines.h" />
-    <ClInclude Include="resourcemanager.h" />
-    <ClInclude Include="scenehierarchy.h" />
-    <ClInclude Include="framebufferobject.h" />
     <ClInclude Include="gameobject.h" />
-    <ClInclude Include="helicopter.h" />
     <ClInclude Include="irenderer.h" />
-    <ClInclude Include="light.h" />
-    <ClInclude Include="lightmanager.h" />
-    <ClInclude Include="model.h" />
-    <ClInclude Include="opengldefinitions.h" />
     <ClInclude Include="openglrenderer.h" />
-    <ClInclude Include="pointlight.h" />
-    <ClInclude Include="shader.h" />
-    <ClInclude Include="ship.h" />
-    <ClInclude Include="sphere.h" />
-    <ClInclude Include="spotlight.h" />
-    <ClInclude Include="springlink.h" />
-    <ClInclude Include="terrain.h" />
-    <ClInclude Include="texture.h" />
-    <ClInclude Include="texturetypes.h" />
     <ClInclude Include="window.h" />
-    <ClInclude Include="wirecloth.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Bin\Tools\LodePNG\lodepng.cpp" />
     <ClCompile Include="camera.cpp" />
-    <ClCompile Include="chrismaths.cpp" />
     <ClCompile Include="clock.cpp" />
     <ClCompile Include="consolewindow.cpp" />
-    <ClCompile Include="directionallight.cpp" />
-    <ClCompile Include="resourcemanager.cpp" />
-    <ClCompile Include="scenehierarchy.cpp" />
-    <ClCompile Include="framebufferobject.cpp" />
     <ClCompile Include="gameobject.cpp" />
-    <ClCompile Include="helicopter.cpp" />
-    <ClCompile Include="light.cpp" />
-    <ClCompile Include="lightmanager.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="model.cpp" />
     <ClCompile Include="openglrenderer.cpp" />
-    <ClCompile Include="pointlight.cpp" />
-    <ClCompile Include="shader.cpp" />
-    <ClCompile Include="ship.cpp" />
-    <ClCompile Include="sphere.cpp" />
-    <ClCompile Include="spotlight.cpp" />
-    <ClCompile Include="springlink.cpp" />
-    <ClCompile Include="terrain.cpp" />
-    <ClCompile Include="texture.cpp" />
     <ClCompile Include="window.cpp" />
-    <ClCompile Include="wirecloth.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

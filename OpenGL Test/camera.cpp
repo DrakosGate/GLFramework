@@ -1,21 +1,8 @@
-//
-// Bachelor of Software Engineering - Year 2
-// Media Design School
-// Auckland 
-// New Zealand
-//
-// (c) 2013 Media Design School
-//
-//  File Name   :   camera.cpp
-//  Description :   Definition of camera class member functions
-//  Author      :   Christopher Howlett
-//  Mail        :   drakos_gate@yahoo.com
-//
 
 // Library Includes
+#include <glm/gtc/matrix_transform.hpp>
 
 // Local Includes
-#include <math.h>
 
 // This Include
 #include "camera.h"
@@ -44,8 +31,8 @@ CCamera::CCamera()
 ,	m_iScreenWidth(0)
 ,	m_iScreenHeight(0)
 {
-	NMatrix::Identity(m_matView);
-	NMatrix::Identity(m_matProj);
+	m_matView = glm::mat4(1.0f);
+	m_matProj = glm::mat4(1.0f);
 
 	m_vecVelocity *= 0.0f;
 }
@@ -93,12 +80,12 @@ CCamera::Initialise(	float _fFOV,
 	if(m_eCameraType == CAMERA_PERSPECTIVE)
 	{
 		//Calculate projection matrix
-		NMatrix::ProjectionPerspective(m_matProj, m_fFOV, m_fAspectRatio, m_fNearClip, m_fFarClip);
+		m_matProj = glm::perspective(m_fFOV, m_fAspectRatio, m_fNearClip, m_fFarClip);
 	}
 	else
 	{
 		//Calculate orthogonal matrix
-		NMatrix::ProjectionOrthogonal(m_matProj, _iScreenWidth, _iScreenHeight, m_fFOV, m_fAspectRatio, m_fNearClip, m_fFarClip);
+		m_matProj = glm::ortho< int >(0, _iScreenWidth, 0, _iScreenHeight, static_cast<int>(m_fNearClip), static_cast<int>(m_fFarClip));
 	}
 	
 	return 0;
@@ -116,7 +103,7 @@ void
 CCamera::Process(float _fDeltaTick)
 {
 	//Recalculate view matrix
-	SetViewLookAt(m_vecPosition, m_vecForward, m_vecUp);
+	m_matView = glm::lookAt(m_vecPosition, m_vecPosition + m_vecForward, m_vecUp);
 	//NMatrix::Transformation(m_matWorld, m_vecPosition, m_vecScale, m_vecRotation);
 }
 /**
@@ -137,8 +124,8 @@ CCamera::ProcessInput(float _fDeltaTick)
 		{
 			m_vecForward += m_vecRight * (m_pInput->fMouseX * fMouseSensitivity) * _fDeltaTick;
 			//m_vecForward += m_vecUp * (m_pInput->fMouseY * fMouseSensitivity) * _fDeltaTick;
-			m_vecForward.Normalise();
-			TVector3 targetPosition = m_pParent->GetPosition() + ((m_pParent->GetForward() * m_vecParentOffset.fZ) + (m_vecUp * m_vecParentOffset.fY));	
+			glm::normalize( m_vecForward );
+			glm::vec3 targetPosition = m_pParent->GetPosition() + ((m_pParent->GetForward() * m_vecParentOffset.z) + (m_vecUp * m_vecParentOffset.y));	
 			m_vecPosition = targetPosition;
 		}
 		else
@@ -189,11 +176,11 @@ CCamera::ProcessInput(float _fDeltaTick)
 		}
 		
 		//Recalculate vectors
-		m_vecUp = TVector3(0.0f, 1.0f, 0.0f);//NVector::Cross(m_vecForward, TVector3(1.0f, 0.0f, 0.0f));
-		m_vecRight = NVector::Cross(m_vecForward, m_vecUp);
-		m_vecForward.Normalise();
-		m_vecRight.Normalise();
-		m_vecUp.Normalise();
+		m_vecUp = glm::vec3(0.0f, 1.0f, 0.0f);//NVector::Cross(m_vecForward, TVector3(1.0f, 0.0f, 0.0f));
+		m_vecRight = glm::cross(m_vecForward, m_vecUp);
+		glm::normalize( m_vecForward );
+		glm::normalize( m_vecRight );
+		glm::normalize( m_vecUp );
 	
 		m_vecPosition += m_vecVelocity * _fDeltaTick;
 		m_vecVelocity *= 0.9f;
@@ -212,12 +199,12 @@ CCamera::ProcessParent(float _fDeltaTime)
 {
 	//Move object relative to parent
 	m_vecForward += m_pParent->GetForward() * m_fRotationSpeed * _fDeltaTime;
-	m_vecForward.Normalise();
+	glm::normalize( m_vecForward );
 	//m_vecForward = m_pParent->GetForward();
 	m_vecUp = m_pParent->GetUp();
 	m_vecRight = m_pParent->GetRight();
 
-	TVector3 targetPosition = (m_pParent->GetPosition() + (m_pParent->GetForward() * m_vecParentOffset.fZ) + (m_vecUp * m_vecParentOffset.fY));	
+	glm::vec3 targetPosition = (m_pParent->GetPosition() + (m_pParent->GetForward() * m_vecParentOffset.z) + (m_vecUp * m_vecParentOffset.y));	
 	m_vecPosition = targetPosition;
 }
 /**
@@ -248,7 +235,7 @@ CCamera::SetClipPlanes(float _fNear, float _fFar)
 	m_fFarClip = _fFar;
 
 	//Recalculate projection matrix
-	NMatrix::ProjectionPerspective(m_matProj, m_fFOV, m_fAspectRatio, m_fNearClip, m_fFarClip);
+	m_matProj = glm::perspective( m_fFOV, m_fAspectRatio, m_fNearClip, m_fFarClip );
 }
 /**
 *
@@ -289,7 +276,7 @@ CCamera::SetFOV(float _fFOV)
 	m_fFOV = _fFOV;
 	
 	//Recalculate projection matrix
-	NMatrix::ProjectionPerspective(m_matProj, m_fFOV, m_fAspectRatio, m_fNearClip, m_fFarClip);
+	m_matProj = glm::perspective( m_fFOV, m_fAspectRatio, m_fNearClip, m_fFarClip );
 }
 
 /**
@@ -300,32 +287,32 @@ CCamera::SetFOV(float _fFOV)
 *
 */
 void 
-CCamera::SetView3D(	TVector3& _rVecRight,
-					TVector3& _rVecUp,
-					TVector3& _rVecDir,
-					TVector3& _rVecPos)
+CCamera::SetView3D(	glm::vec3& _rVecRight,
+					glm::vec3& _rVecUp,
+					glm::vec3& _rVecDir,
+					glm::vec3& _rVecPos)
 {
 	//Populate view matrix
-	NMatrix::Identity(m_matView);
-	m_matView.m[0] = _rVecRight.fX;
-	m_matView.m[1] = _rVecRight.fY;
-	m_matView.m[2] = _rVecRight.fZ;
-	m_matView.m[3] = 0.0f;
+	m_matView = glm::mat4(1.0f);
+	m_matView[0][0] = _rVecRight.x;
+	m_matView[1][0] = _rVecRight.y;
+	m_matView[2][0] = _rVecRight.z;
+	m_matView[3][0] = 0.0f;
 				  
-	m_matView.m[4] = _rVecUp.fX;
-	m_matView.m[5] = _rVecUp.fY;
-	m_matView.m[6] = _rVecUp.fZ;
-	m_matView.m[7] = 0.0f;
+	m_matView[0][1] = _rVecUp.x;
+	m_matView[1][1] = _rVecUp.y;
+	m_matView[2][1] = _rVecUp.z;
+	m_matView[3][1] = 0.0f;
 				  
-	m_matView.m[8] = _rVecDir.fX;
-	m_matView.m[9] = _rVecDir.fY;
-	m_matView.m[10] = _rVecDir.fZ;
-	m_matView.m[11] = 0.0f;
+	m_matView[0][2] = _rVecDir.x;
+	m_matView[1][2] = _rVecDir.y;
+	m_matView[2][2] = _rVecDir.z;
+	m_matView[3][2] = 0.0f;
 			  
-	m_matView.m[12] = NVector::Dot(_rVecPos, _rVecRight) * -1;
-	m_matView.m[13] = NVector::Dot(_rVecPos, _rVecUp) * -1;
-	m_matView.m[14] = NVector::Dot(_rVecPos, _rVecDir) * -1;
-	m_matView.m[15] = 1.0f;
+	m_matView[0][3] = glm::dot(_rVecPos, _rVecRight) * -1;
+	m_matView[1][3] = glm::dot(_rVecPos, _rVecUp) * -1;
+	m_matView[2][3] = glm::dot(_rVecPos, _rVecDir) * -1;
+	m_matView[3][3] = 1.0f;
 }
 
 /**
@@ -336,16 +323,16 @@ CCamera::SetView3D(	TVector3& _rVecRight,
 *
 */
 void 
-CCamera::SetViewLookAt(	TVector3& _rVecPos,
-							TVector3& _rVecLook,
-							TVector3& _rVecUp )
+CCamera::SetViewLookAt(	glm::vec3& _rVecPos,
+							glm::vec3& _rVecLook,
+							glm::vec3& _rVecUp )
 {
 	//Calculate right vector
-	m_vecRight = NVector::Cross(m_vecForward, m_vecUp);
-	m_vecRight.Normalise();
+	m_vecRight = glm::cross(m_vecForward, m_vecUp);
+	glm::normalize( m_vecRight );
 	
 	//Calculate up vector
-	m_vecUp.Normalise();
+	glm::normalize( m_vecUp );
 	
 	//Call SetView3D
 	SetView3D(m_vecRight, m_vecUp, m_vecForward, m_vecPosition);
@@ -360,7 +347,7 @@ CCamera::SetViewLookAt(	TVector3& _rVecPos,
 *
 */
 void 
-CCamera::SetViewMatrix(TMatrix& _rMatView)
+CCamera::SetViewMatrix(glm::mat4x4& _rMatView)
 {
 	//Store view matrix
 	m_matView = _rMatView;
@@ -374,7 +361,7 @@ CCamera::SetViewMatrix(TMatrix& _rMatView)
 *
 */
 void 
-CCamera::SetProjMatrix(TMatrix& _rMatProj)
+CCamera::SetProjMatrix(glm::mat4x4& _rMatProj)
 {
 	//Store projection matrix
 	m_matProj = _rMatProj;
@@ -387,7 +374,7 @@ CCamera::SetProjMatrix(TMatrix& _rMatProj)
 * @return Camera view matrix
 *
 */
-TMatrix& 
+glm::mat4x4& 
 CCamera::GetViewMatrix()
 {
 	return m_matView;
@@ -400,7 +387,7 @@ CCamera::GetViewMatrix()
 * @return Camera projection matrix
 *
 */
-TMatrix& 
+glm::mat4x4& 
 CCamera::GetProjectionMatrix()
 {
 	return m_matProj;
@@ -413,7 +400,7 @@ CCamera::GetProjectionMatrix()
 * @return Camera world matrix
 *
 */
-TMatrix& 
+glm::mat4x4& 
 CCamera::GetWorldMatrix()
 {
 	return m_matWorld;
@@ -428,15 +415,15 @@ CCamera::GetWorldMatrix()
 *
 */
 void  
-CCamera::Calculate3DMouseCoordinates(TVector2& _rVecMouse, TRay& _rRay)
+CCamera::Calculate3DMouseCoordinates(glm::vec2& _rVecMouse, TRay& _rRay)
 {
-	TVector3 h = NVector::Cross(m_vecForward, m_vecUp);
-	h.Normalise();
-	TVector3 v = NVector::Cross(h, m_vecForward);
-	v.Normalise();
+	glm::vec3 h = glm::cross(m_vecForward, m_vecUp);
+	glm::normalize( h );
+	glm::vec3 v = glm::cross(h, m_vecForward);
+	glm::normalize( v );
 	
 	//FOV to radians
-	float fFieldOfView = m_fFOV * TO_RADIANS;
+	float fFieldOfView = glm::radians( m_fFOV );
 	float fVerticalLength = tanf(fFieldOfView * 0.5f) * m_fNearClip;
 	float fHorizontalLength = fVerticalLength * m_fAspectRatio;
 	
@@ -444,14 +431,14 @@ CCamera::Calculate3DMouseCoordinates(TVector2& _rVecMouse, TRay& _rRay)
 	h *= fHorizontalLength;
 	
 	//Scale mouse coordinates in range of 0 - 1
-	_rVecMouse.fX /= static_cast<float>(m_iScreenWidth * 0.5f);
-	_rVecMouse.fY /= static_cast<float>(m_iScreenHeight * 0.5f);
+	_rVecMouse.x /= static_cast<float>(m_iScreenWidth * 0.5f);
+	_rVecMouse.y /= static_cast<float>(m_iScreenHeight * 0.5f);
 	
 	//Calculate intersection with viewport near plane
-	_rRay.vecPosition = m_vecPosition + (m_vecForward * m_fNearClip) + (h * _rVecMouse.fX) + (v * _rVecMouse.fY);
+	_rRay.vecPosition = m_vecPosition + (m_vecForward * m_fNearClip) + (h * _rVecMouse.x) + (v * _rVecMouse.y);
 	
 	//Calculate ray direction
 	_rRay.vecDirection = _rRay.vecPosition - m_vecPosition;
-	_rRay.vecDirection.Normalise();
+	glm::normalize( _rRay.vecDirection );
 	//_rRay.vecPosition += m_vecPosition;
 }

@@ -20,7 +20,7 @@
 // Library Includes
 
 // Local Includes
-#include "chrismaths.h"
+#include <glm/glm.hpp>
 
 // Types
 
@@ -42,42 +42,42 @@ public:
 
 	//Parent functions
 	virtual void ProcessParent(float _fDeltaTime);
-	virtual void SetParent(CGameObject* _pParent, TVector3* _pTargetOffset);	
+	virtual void SetParent(CGameObject* _pParent, glm::vec3* _pTargetOffset);	
 
 	//PRS Accessor functions
-	virtual void SetPosition(TVector3& _rVecPosition);
-	virtual TVector3& GetPosition();
-	virtual void SetRotation(TVector3& _rRotation);
-	virtual TVector3& GetRotation();
-	virtual void SetScale(TVector3& _rScale);
-	virtual TVector3& GetScale();
+	virtual void SetPosition(glm::vec3& _rVecPosition);
+	virtual glm::vec3& GetPosition();
+	virtual void SetRotation(glm::vec3& _rRotation);
+	virtual glm::vec3& GetRotation();
+	virtual void SetScale(glm::vec3& _rScale);
+	virtual glm::vec3& GetScale();
 
 	//Vector Accessor functions
-	virtual void SetForward(TVector3& _rVecPosition);
-	virtual TVector3& GetForward();
-	virtual void SetRight(TVector3& _rVecRight);
-	virtual TVector3& GetRight();
-	virtual void SetUp(TVector3& _rVecUp);
-	virtual TVector3& GetUp();
+	virtual void SetForward(glm::vec3& _rVecPosition);
+	virtual glm::vec3& GetForward();
+	virtual void SetRight(glm::vec3& _rVecRight);
+	virtual glm::vec3& GetRight();
+	virtual void SetUp(glm::vec3& _rVecUp);
+	virtual glm::vec3& GetUp();
 	
 private:
 	CGameObject(const CGameObject& _kr);
 	CGameObject& operator= (const CGameObject& _rhs);
 	
 protected:
-	TMatrix m_matWorld;
+	glm::mat4x4 m_matWorld;
 
-	TVector3 m_vecPosition;
-	TVector3 m_vecScale;
-	TVector3 m_vecRotation;
+	glm::vec3 m_vecPosition;
+	glm::vec3 m_vecScale;
+	glm::vec3 m_vecRotation;
 
-	TVector3 m_vecForward;
-	TVector3 m_vecRight;
-	TVector3 m_vecUp;
+	glm::vec3 m_vecForward;
+	glm::vec3 m_vecRight;
+	glm::vec3 m_vecUp;
 
 	bool m_bHasParent;
 	CGameObject* m_pParent;
-	TVector3 m_vecParentOffset;
+	glm::vec3 m_vecParentOffset;
 };
 
 #endif //__GAMEOBJECT_H__

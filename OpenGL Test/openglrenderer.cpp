@@ -37,65 +37,15 @@
 
 COpenGLRenderer::COpenGLRenderer()
 : m_hWindow(0)
-, m_hDevContext(0)
-, m_fFOV(0)
-, m_fAspectRatio(0)
+, m_deviceContext(0)
 , m_pPerspectiveCamera(0)
-//, m_pModelCollection(0)
-, m_pColourShader(0)
 , m_pInput(0)
-, m_pTextureCollection(0)
 , m_pConsole(0)
-, m_pLightManager(0)
-, m_pTerrain(0)
-, m_fGameTime(0.0f)
-, m_pFrameBuffer(0)
-//, m_pHelicopter(0)
-//, m_pShip(0)
-, m_pSceneHierarchy(0)
-, m_pResourceManager(0)
 {
 
 }
 COpenGLRenderer::~COpenGLRenderer()
 {
-	if (m_pResourceManager)
-	{
-		delete m_pResourceManager;
-		m_pResourceManager = 0;
-	}
-	if (m_pSceneHierarchy)
-	{
-		delete m_pSceneHierarchy;
-		m_pSceneHierarchy = 0;
-	}
-	//Delete frame buffers
-	if(m_pFrameBuffer)
-	{
-		delete m_pFrameBuffer;
-		m_pFrameBuffer = 0;
-	}
-	if(m_pScreenSurface)
-	{
-		delete m_pScreenSurface;
-		m_pScreenSurface = 0;
-	}
-	//Delete game objects
-	//if(m_pShip)
-	//{
-	//	delete m_pShip;
-	//	m_pShip = 0;
-	//}
-	//if(m_pHelicopter)
-	//{
-	//	delete m_pHelicopter;
-	//	m_pHelicopter = 0;
-	//}
-	//if(m_pModelCollection)
-	//{
-	//	delete[] m_pModelCollection;
-	//	m_pModelCollection = 0;
-	//}
 	if(m_pPerspectiveCamera)
 	{
 		delete m_pPerspectiveCamera;
@@ -106,11 +56,6 @@ COpenGLRenderer::~COpenGLRenderer()
 		delete m_pOrthographicCamera;
 		m_pOrthographicCamera = 0;
 	}
-	if(m_pTextureCollection)
-	{
-		delete[] m_pTextureCollection;
-		m_pTextureCollection = 0;
-	}
 	if(m_pConsole)
 	{
 		//Shutdown console
@@ -119,22 +64,6 @@ COpenGLRenderer::~COpenGLRenderer()
 		delete m_pConsole;
 		m_pConsole = 0;
 	}
-	if(m_pLightManager)
-	{
-		delete m_pLightManager;
-		m_pLightManager = 0;
-	}
-	if(m_pTerrain)
-	{
-		delete m_pTerrain;
-		m_pTerrain = 0;
-	}
-	//Clear shaders
-	if(m_pColourShader)
-	{
-		delete m_pColourShader;
-		m_pColourShader = 0;
-	}
 
 	//Shutdown OpenGL
 	CleanUp();
@@ -142,9 +71,6 @@ COpenGLRenderer::~COpenGLRenderer()
 bool 
 COpenGLRenderer::Initialise(HWND _hWnd, int _iWindowWidth, int _iWindowHeight, TInputStruct* _pInput)
 {
-	//Initialise GLEW for additional OpenGL functionality
-	glewInit();
-	
 	m_hWindow = _hWnd;
 	m_pInput = _pInput;
 	m_iWindowWidth = _iWindowWidth;
@@ -155,49 +81,142 @@ COpenGLRenderer::Initialise(HWND _hWnd, int _iWindowWidth, int _iWindowHeight, T
 	m_pConsole->InitialiseConsole();
 	
 	//Initialise OpenGL 
-	SetupOpenGL(_hWnd);
+	InitialiseExtensions(_hWnd);
+	SetupOpenGL(_hWnd, false);
 
-	//Interpret level editor data
-	m_pSceneHierarchy = new CSceneHierarchy();
-	m_pSceneHierarchy->Initialise("Data/Resources.xml");
-	m_pSceneHierarchy->LoadSceneFromXML("Data/Levels/greattree.xml");
-	
-	
-	//Load the shader files
-	LoadShaders();
-	//Load resources from editor data
-	m_pResourceManager = new CResourceManager();
-	m_pResourceManager->Initialise(this, m_pSceneHierarchy, m_pColourShader);
-	
-	
-	//Load the texture files
-	LoadTextures();
-	//Add lights to lightmanager
-	CreateLights();
+	//Initialise camera objects
+	const float m_fFOV = 45.0f;
+	const float m_fAspectRatio = (GLfloat)WINDOW_WIDTH / (GLfloat)WINDOW_HEIGHT;
+	m_pPerspectiveCamera = new CCamera();
+	m_pPerspectiveCamera->Initialise(m_fFOV, m_fAspectRatio, 0.01f, 1000.0f, 100.0f, 50.0f, m_iWindowWidth, m_iWindowHeight, CAMERA_PERSPECTIVE);
+	m_pPerspectiveCamera->SetInput(m_pInput);
+	m_pPerspectiveCamera->SetPosition(glm::vec3(0.0f, 2.0f, -5.0f));
+	m_pOrthographicCamera = new CCamera();
+	m_pOrthographicCamera->Initialise(m_fFOV, m_fAspectRatio, 0.1f, 1000.0f, 5.0f, 2.0f, m_iWindowWidth, m_iWindowHeight, CAMERA_ORTHOGONAL);
+	m_pOrthographicCamera->SetPosition(glm::vec3(10.0f, 0.0f, 0.0f));
+	m_pOrthographicCamera->SetForward(glm::vec3(-1.0f, 0.0f, 0.0f));
 
-	//Create in game entities
-	CreateEntities();
 	
 	return true;
+}
+void
+COpenGLRenderer::SetupOpenGL( HWND _hWnd, bool _bVSync )
+{
+	bool bResult = false;
+	int iResult = 0;
+	printf("Initialising OpenGL\n");
+
+	PIXELFORMATDESCRIPTOR pixelFormatDesc;
+	int pixelFormat;
+	int attributeList[5];
+	char* pVendorString;
+	char* pRendererString;
+
+	m_deviceContext = GetDC(m_hWindow);
+	ErrAssert(m_deviceContext, L"Could not create device context");
+
+	pixelFormat = ChoosePixelFormat(m_deviceContext, &pixelFormatDesc);
+	ErrAssert(pixelFormat, L"Could not get pixel format");
+	bResult = SetPixelFormat(m_deviceContext, pixelFormat, &pixelFormatDesc) == 0;
+	DWORD errorCode = GetLastError();
+	ErrAssert(bResult, L"Could not set pixel format");
+
+	//Temp 2.1 context
+	HGLRC tempContext = wglCreateContext(m_deviceContext);
+	wglMakeCurrent(m_deviceContext, tempContext); //Temp 2.1 context
+
+	printf("- Initialising GLEW\n");
+	GLenum result = glewInit();
+	ErrAssert(result == GLEW_OK, L"Could not initialise GLEW");
+
+	//Set version to 4.0
+	attributeList[0] = WGL_CONTEXT_MAJOR_VERSION_ARB;
+	attributeList[1] = 4;
+	attributeList[2] = WGL_CONTEXT_MINOR_VERSION_ARB;
+	attributeList[3] = 0;
+	attributeList[4] = 0;
+
+	//Create opengl 4.0 rendering context
+	m_renderingContext = wglCreateContextAttribsARB(m_deviceContext, 0, attributeList);
+	if (m_renderingContext)
+	{
+		printf("== OpenGL 4.0 is supported ==\n");
+		//Replace current with 4.0
+		wglMakeCurrent(NULL, NULL);
+		wglDeleteContext(tempContext);
+		bResult = wglMakeCurrent(m_deviceContext, m_renderingContext) == TRUE;
+		ErrAssert(bResult, L"Could not set 4.0 context");
+	}
+
+	pVendorString = (char*)glGetString(GL_VENDOR);
+	pRendererString = (char*)glGetString(GL_RENDERER);
+	strcpy_s(m_videocardInfo, pVendorString);
+	strcat_s(m_videocardInfo, "-");
+	strcat_s(m_videocardInfo, pRendererString);
+
+	//Vsync
+	bResult = wglSwapIntervalEXT(_bVSync) == TRUE;
+	ErrAssert(bResult, L"Could not set VSync varaible");
+
+	int glVersion[2] = { -1, -1 };
+	glGetIntegerv(GL_MAJOR_VERSION, &glVersion[0]);
+	glGetIntegerv(GL_MINOR_VERSION, &glVersion[1]);
+	printf("OpenGL Initialise Success: [%i.%i]\n", glVersion[0], glVersion[1]);
+	printf("GPU: %s\n", m_videocardInfo); 
+
+	//Setup OpenGL for Rendering
+	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+	glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
+	glEnable(GL_DEPTH_TEST);
+
+	glFrontFace(GL_CW);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+}
+
+void
+COpenGLRenderer::CleanUp()
+{
+	wglMakeCurrent(NULL, NULL);
+	wglDeleteContext(m_renderingContext);
+	ReleaseDC(m_hWindow, m_deviceContext);
+}
+
+void
+COpenGLRenderer::ExecuteOneFrame(float _fDeltaTick)
+{
+	//Process calculations
+	Process(_fDeltaTick);
+
+	//Render scene to screen
+	PreDraw();
+
+	//Render using perspective cam
+	Draw(m_pPerspectiveCamera);
+
+	//Finish, swap buffers and present scene
+	PostDraw();
 }
 void 
 COpenGLRenderer::PreDraw()
 {
+	glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	
 	//Send shader information
-	m_pColourShader->SetShader(this);
+	//m_pColourShader->SetShader(this);
 	//Lighting variables
-	SendLightData();
+	//SendLightData();
 }
 void 
 COpenGLRenderer::Draw(CCamera* _pCurrentCamera)
 {	
-	m_pColourShader->SetShaderMatrix(this, "worldMatrix", m_matWorld.m);
-	m_pColourShader->SetShaderMatrix(this, "viewMatrix", _pCurrentCamera->GetViewMatrix().m);
-	m_pColourShader->SetShaderMatrix(this, "projectionMatrix", _pCurrentCamera->GetProjectionMatrix().m);
+	/*
+	//m_pColourShader->SetShaderMatrix(this, "worldMatrix", m_matWorld.m);
+	//m_pColourShader->SetShaderMatrix(this, "viewMatrix", _pCurrentCamera->GetViewMatrix().m);
+	//m_pColourShader->SetShaderMatrix(this, "projectionMatrix", _pCurrentCamera->GetProjectionMatrix().m);
 	
-//	DrawLine(m_pShip->GetPosition(), m_pShip->GetPosition() + (m_pShip->GetForward() * 5.0f), TVector3(1.0f, 0.0f, 0.0f));
+	//DrawLine(m_pShip->GetPosition(), m_pShip->GetPosition() + (m_pShip->GetForward() * 5.0f), TVector3(1.0f, 0.0f, 0.0f));
 
 	//Camera variables
 	m_pColourShader->SetShaderVector3(this, "gCameraPosition", _pCurrentCamera->GetPosition());
@@ -253,12 +272,14 @@ COpenGLRenderer::Draw(CCamera* _pCurrentCamera)
 				pModel->Draw(this, _pCurrentCamera);
 			}
 		}
-	}
+	}*/
 }
 void 
 COpenGLRenderer::PostDraw()
 {
-	SwapBuffers(m_hDevContext);
+	glFlush();
+	SwapBuffers(m_deviceContext);
+	glFinish();
 }
 void 
 COpenGLRenderer::Process(float _fDeltaTick)
@@ -266,16 +287,6 @@ COpenGLRenderer::Process(float _fDeltaTick)
 	ProcessInput();
 
 	m_fGameTime += _fDeltaTick;
-//	m_pModelCollection[MODEL_LOOP].Process(_fDeltaTick);
-
-	m_pTerrain->Process(_fDeltaTick);
-	//m_pHelicopter->SetPosition(TVector3(m_pInput->fMouseX, m_pInput->fMouseY, 0.0f));
-	//m_pHelicopter->Process(_fDeltaTick);
-	//m_pHelicopter->ProcessInput(_fDeltaTick);
-	//m_pShip->ProcessInput(_fDeltaTick);
-	//m_pShip->Process(_fDeltaTick);
-	m_pLightManager->GetSpot(0)->ProcessParent(_fDeltaTick);
-	m_pLightManager->GetPoint(0)->SetPosition(m_pLightManager->GetPoint(0)->GetPosition() + TVector3(0.0f, sinf(m_fGameTime), 0.0f));
 
 	m_pPerspectiveCamera->Process(_fDeltaTick);
 	m_pPerspectiveCamera->ProcessInput(_fDeltaTick);
@@ -297,45 +308,7 @@ COpenGLRenderer::ProcessInput()
 		}
 	}
 }
-void 
-COpenGLRenderer::SetupOpenGL(HWND _hWnd)
-{
-	m_hDevContext = GetDC(m_hWindow);
-	
-	int iPixelFormat = 0;
-	PIXELFORMATDESCRIPTOR pFormat;
-	ZeroMemory(&pFormat, sizeof(PIXELFORMATDESCRIPTOR));
-
-	pFormat.nSize = sizeof(PIXELFORMATDESCRIPTOR);
-	pFormat.nVersion = 1;
-	pFormat.iLayerType = PFD_MAIN_PLANE;
-	pFormat.dwFlags = PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER;
-	pFormat.cDepthBits = 32;
-	pFormat.cColorBits = 24;
-	pFormat.iPixelType = PFD_TYPE_RGBA;
-	
-	iPixelFormat = ChoosePixelFormat(m_hDevContext, &pFormat);
-	SetPixelFormat(m_hDevContext, iPixelFormat, &pFormat);
-	m_hRenderContext = wglCreateContext(m_hDevContext);
-	wglMakeCurrent(m_hDevContext, m_hRenderContext);
-
-	//Load openGl extensions
-	LoadExtensions();
-
-	//Setup OpenGL for Rendering
-	m_fFOV = 45.0f;
-	m_fAspectRatio = (GLfloat)WINDOW_WIDTH / (GLfloat)WINDOW_HEIGHT;
-	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-	glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
-	glEnable(GL_DEPTH_TEST);
-	
-	glFrontFace(GL_CW);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-
-	//Setup matrices
-	NMatrix::Identity(m_matWorld);	
-}
+/*
 void 
 COpenGLRenderer::CreateEntities()
 {
@@ -413,42 +386,15 @@ COpenGLRenderer::LoadShaders()
 	m_pColourShader = new CShader();
 	m_pColourShader->InitialiseShader(this, "Shaders/diffuselighting.vert", "Shaders/diffuselighting.frag");
 }
-void 
-COpenGLRenderer::CleanUp()
-{
-	wglMakeCurrent(NULL, NULL);
-	wglDeleteContext(m_hRenderContext);
-	ReleaseDC(m_hWindow, m_hDevContext);
-}
-void 
-COpenGLRenderer::ExecuteOneFrame(float _fDeltaTick)
-{
-	//Process calculations
-	Process(_fDeltaTick);
-
-	//Render scene to screen
-	PreDraw();
-	
-	//m_pFrameBuffer->SetToWrite();
-	//glClear(GL_DEPTH_BUFFER_BIT);
-	Draw(m_pPerspectiveCamera);
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//m_pColourShader->SetShaderInteger(this, "gDepthTexture", 0);
-	//m_pFrameBuffer->SetToRead(GL_TEXTURE0);
-	//Draw();	
-	
-	PostDraw();
-}
 //Draw debug line to window
 void 
 COpenGLRenderer::DrawLine(TVector3& _rStart, TVector3& _rEnd, TVector3& _rColour)
 {
 	glBegin(GL_LINES);
 	glLineWidth(5.5); 
-	glColor3f(_rColour.fX, _rColour.fY, _rColour.fZ);
-	glVertex3f(_rStart.fX, _rStart.fY, _rStart.fZ);
-	glVertex3f(_rEnd.fX, _rEnd.fY, _rEnd.fZ);
+	glColor3f(_rColour.x, _rColour.y, _rColour.z);
+	glVertex3f(_rStart.x, _rStart.y, _rStart.z);
+	glVertex3f(_rEnd.x, _rEnd.y, _rEnd.z);
 	glEnd();
 }
 void 
@@ -529,46 +475,53 @@ COpenGLRenderer::CreateLights()
 	//Spot
 	m_pLightManager->AddSpot(TVector3(0.0f, 15.0f, 0.0f), TVector3(0.0f, -1.0f, 0.0f), TVector4(0.5f, 0.5f, 0.5f, 1.0f), TVector3(1.0f, 0.5f, 0.2f), 0.6f, 500.0f);
 	//m_pLightManager->AddSpot(TVector3(0.0f, 5.0f, 5.0f), TVector3(0.0f, 5.0f, 5.0f) * -1.0f, TVector4(0.2f, 0.2f, 0.2f, 1.0f), TVector3(1.0f, 0.5f, 0.2f), 0.5f, 50.0f);
+}*/
+
+bool
+COpenGLRenderer::InitialiseExtensions(HWND _hWnd)
+{
+	printf("- Initialising OpenGL Extensions\n");
+	bool bResult = false;
+
+	int iError = 0;
+	HDC deviceContext;
+	PIXELFORMATDESCRIPTOR pixelFormat;
+	HGLRC renderContext;
+
+	//Get Device context
+	deviceContext = GetDC(_hWnd);
+	ErrAssert(deviceContext, L"Device context failed");
+
+	//Set default format
+	iError = SetPixelFormat(deviceContext, 1, &pixelFormat);
+	ErrAssert(iError == 1, L"Invalid pixel format");
+
+	//Create render context
+	renderContext = wglCreateContext(deviceContext);
+	ErrAssert(renderContext, L"Could not create render context");
+
+	iError = wglMakeCurrent(deviceContext, renderContext);
+	ErrAssert(iError == 1, L"Could not make current context");
+
+	//Load OpenGL Extensions
+	bResult = LoadExtensions();
+	ErrAssert(bResult, L"Could not load extensions");
+
+	//Release
+	wglMakeCurrent(NULL, NULL);
+	wglDeleteContext(renderContext);
+	ReleaseDC(m_hWindow, deviceContext);
+
+	return bResult;
 }
-void 
+
+bool 
 COpenGLRenderer::LoadExtensions()
 {
-	// Load the OpenGL extensions that this application will be using.
-	wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
+	printf("- Loading OpenGL Extensions\n");
+	bool bResult = true;
 	wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
-	wglSwapIntervalEXT = (PFNWGLSWAPINTERVALEXTPROC)wglGetProcAddress("wglSwapIntervalEXT");
-	glAttachShader = (PFNGLATTACHSHADERPROC)wglGetProcAddress("glAttachShader");
-	glBindBuffer = (PFNGLBINDBUFFERPROC)wglGetProcAddress("glBindBuffer");
-	glBindVertexArray = (PFNGLBINDVERTEXARRAYPROC)wglGetProcAddress("glBindVertexArray");
-	glBufferData = (PFNGLBUFFERDATAPROC)wglGetProcAddress("glBufferData");
-	glCompileShader = (PFNGLCOMPILESHADERPROC)wglGetProcAddress("glCompileShader");
-	glCreateProgram = (PFNGLCREATEPROGRAMPROC)wglGetProcAddress("glCreateProgram");
-	glCreateShader = (PFNGLCREATESHADERPROC)wglGetProcAddress("glCreateShader");
-	glDeleteBuffers = (PFNGLDELETEBUFFERSPROC)wglGetProcAddress("glDeleteBuffers");
-	glDeleteProgram = (PFNGLDELETEPROGRAMPROC)wglGetProcAddress("glDeleteProgram");
-	glDeleteShader = (PFNGLDELETESHADERPROC)wglGetProcAddress("glDeleteShader");
-	glDeleteVertexArrays = (PFNGLDELETEVERTEXARRAYSPROC)wglGetProcAddress("glDeleteVertexArrays");
-	glDetachShader = (PFNGLDETACHSHADERPROC)wglGetProcAddress("glDetachShader");
-	glEnableVertexAttribArray = (PFNGLENABLEVERTEXATTRIBARRAYPROC)wglGetProcAddress("glEnableVertexAttribArray");
-	glGenBuffers = (PFNGLGENBUFFERSPROC)wglGetProcAddress("glGenBuffers");
-	glGenVertexArrays = (PFNGLGENVERTEXARRAYSPROC)wglGetProcAddress("glGenVertexArrays");
-	glGetAttribLocation = (PFNGLGETATTRIBLOCATIONPROC)wglGetProcAddress("glGetAttribLocation");
-	glGetProgramInfoLog = (PFNGLGETPROGRAMINFOLOGPROC)wglGetProcAddress("glGetProgramInfoLog");
-	glGetProgramiv = (PFNGLGETPROGRAMIVPROC)wglGetProcAddress("glGetProgramiv");
-	glGetShaderInfoLog = (PFNGLGETSHADERINFOLOGPROC)wglGetProcAddress("glGetShaderInfoLog");
-	glGetShaderiv = (PFNGLGETSHADERIVPROC)wglGetProcAddress("glGetShaderiv");
-	glLinkProgram = (PFNGLLINKPROGRAMPROC)wglGetProcAddress("glLinkProgram");
-	glShaderSource = (PFNGLSHADERSOURCEPROC)wglGetProcAddress("glShaderSource");
-	glUseProgram = (PFNGLUSEPROGRAMPROC)wglGetProcAddress("glUseProgram");
-	glVertexAttribPointer = (PFNGLVERTEXATTRIBPOINTERPROC)wglGetProcAddress("glVertexAttribPointer");
-	glBindAttribLocation = (PFNGLBINDATTRIBLOCATIONPROC)wglGetProcAddress("glBindAttribLocation");
-	glGetUniformLocation = (PFNGLGETUNIFORMLOCATIONPROC)wglGetProcAddress("glGetUniformLocation");
-	glUniformMatrix4fv = (PFNGLUNIFORMMATRIX4FVPROC)wglGetProcAddress("glUniformMatrix4fv");
-	glActiveTexture = (PFNGLACTIVETEXTUREPROC)wglGetProcAddress("glActiveTexture");
-	glUniform1i = (PFNGLUNIFORM1IPROC)wglGetProcAddress("glUniform1i");
-	glGenerateMipmap = (PFNGLGENERATEMIPMAPPROC)wglGetProcAddress("glGenerateMipmap");
-	glDisableVertexAttribArray = (PFNGLDISABLEVERTEXATTRIBARRAYPROC)wglGetProcAddress("glDisableVertexAttribArray");
-	glUniform3fv = (PFNGLUNIFORM3FVPROC)wglGetProcAddress("glUniform3fv");
-	glUniform4fv = (PFNGLUNIFORM4FVPROC)wglGetProcAddress("glUniform4fv");
-	glUniform1f = (PFNGLUNIFORM1FPROC)wglGetProcAddress("glUniform1f");
+	ErrAssert(wglCreateContextAttribsARB, L"Could not load extensions");
+
+	return bResult;
 }

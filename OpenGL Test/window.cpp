@@ -95,9 +95,6 @@ WindowProc(HWND _hWnd, UINT _uiMsg, WPARAM _wParam, LPARAM _lParam)
 CWindow::CWindow()
 :	m_pRenderer(0)
 ,	m_hMainWnd(0)
-,	mMinimized(false)
-,	mMaximized(false)
-,	mResizing(false)	
 ,	m_pClock(0)
 {
 	m_iClientWidth    = static_cast<int>(WINDOW_WIDTH);
@@ -167,29 +164,123 @@ CWindow::Initialise(HINSTANCE _hInstance, ERendererType _eRenderer)
 	m_pClock->Initialise();
 	m_pClock->LimitFramesPerSecond(60.0f);
 
+	
 	ZeroMemory(&m_tInput, sizeof(TInputStruct));
 	m_hInstance = _hInstance;
-	InitialiseMainWindow();
+	InitialiseMainWindow(L"OpenGL Window", 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, false, true);
 	SendMessage(m_hMainWnd, WM_WINDOW_CREATION, (WPARAM)this, NULL);
 
+
 	//Create renderer type specified
-	switch(_eRenderer)
+	switch (_eRenderer)
 	{
 	case RENDERER_OPENGL:
-		{
-			m_pRenderer = new COpenGLRenderer();
-		}
+	{
+		m_pRenderer = new COpenGLRenderer();
+	}
 		break;
 	case RENDERER_DIRECTX:
-		{
+	{
 
-		}
+	}
 		break;
 	};
 
 	m_pRenderer->Initialise(m_hMainWnd, m_iClientWidth, m_iClientHeight, &m_tInput);
 
 	return true;
+}
+
+
+/**
+*
+* CWindow Initialises Main Window
+*
+* @author Christopher Howlett
+*
+*/
+bool
+CWindow::InitialiseMainWindow(wchar_t* _pTitle, int _iX, int _iY, int _iWidth, int _iHeight, bool _bFullscreen, bool _bVSync)
+{
+	bool bResult = false;
+	m_bIsFullscreen = _bFullscreen;
+
+	HWND hWnd;
+	WNDCLASSEX wc;
+	m_hInstance = GetModuleHandle(NULL);
+
+	//Setup window class
+	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+	wc.lpfnWndProc = WindowProc;
+	wc.cbClsExtra = 0;
+	wc.cbWndExtra = 0;
+	wc.hInstance = m_hInstance;
+	wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
+	wc.hIconSm = wc.hIcon;
+	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
+	wc.lpszMenuName = NULL;
+	wc.lpszClassName = _pTitle;
+	wc.cbSize = sizeof(WNDCLASSEX);
+
+	RegisterClassEx(&wc);
+
+	//Create temporary window for extension setup
+	//hWnd = CreateWindowEx(WS_EX_APPWINDOW,
+	//	_pTitle, _pTitle,
+	//	WS_POPUP,
+	//	0, 0,
+	//	640, 480,
+	//	NULL, NULL,
+	//	m_hInstance, NULL);
+	//ErrAssert(hWnd, L"Could not create temporary window");
+	//
+	//ShowWindow(hWnd, SW_HIDE);
+
+	///Destroy temporary window
+	//DestroyWindow(hWnd);
+	//hWnd = NULL;
+
+	//Set window styles
+	int winStyle = WS_OVERLAPPED | WS_SYSMENU | WS_VISIBLE | WS_CAPTION | WS_MINIMIZEBOX | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+	int iScreenWidth = GetSystemMetrics(SM_CXSCREEN);
+	int iScreenHeight = GetSystemMetrics(SM_CYSCREEN);
+	if (_bFullscreen)
+	{
+		//Fullscreen settings
+		DEVMODE dScreenSettings;
+		memset(&dScreenSettings, 0, sizeof(DEVMODE));
+		dScreenSettings.dmSize = sizeof(DEVMODE);
+		dScreenSettings.dmPelsWidth = static_cast<unsigned long>(iScreenWidth);
+		dScreenSettings.dmPelsHeight = static_cast<unsigned long>(iScreenHeight);
+		dScreenSettings.dmBitsPerPel = 32;
+		dScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+
+		ChangeDisplaySettings(&dScreenSettings, CDS_FULLSCREEN);
+	}
+	else
+	{
+		iScreenWidth = _iWidth;
+		iScreenHeight = _iHeight;
+	}
+
+	//Create window
+	hWnd = CreateWindowEx(WS_EX_APPWINDOW, _pTitle, _pTitle,
+		winStyle,
+		_iX, _iY,
+		iScreenWidth, iScreenHeight,
+		NULL, NULL,
+		m_hInstance, NULL);
+	ErrAssert(hWnd, L"Window creation failed");
+
+	//Show window
+	ShowWindow(hWnd, SW_SHOW);
+	SetForegroundWindow(hWnd);
+	SetFocus(hWnd);
+
+	m_hMainWnd = hWnd;
+
+	return bResult;
 }
 /**
 *
@@ -207,7 +298,7 @@ CWindow::Run()
 	while(msg.message != WM_QUIT)
 	{
 		// Process windows messages
-		if(PeekMessage( &msg, 0, 0, 0, PM_REMOVE ))
+		if(PeekMessage( &msg, 0, 0U, 0U, PM_REMOVE ))
 		{
             TranslateMessage( &msg );
             DispatchMessage( &msg );
@@ -251,10 +342,10 @@ CWindow::msgProc(UINT msg, WPARAM wParam, LPARAM lParam)
 	// =======================================================  
 	case WM_MOUSEMOVE:
 		{
-			TVector3 vecThisMouse(static_cast<float>(LOWORD(lParam) - (m_iClientWidth * 0.5f)), static_cast<float>(-(HIWORD(lParam) - (m_iClientHeight * 0.25f))), 0.0f);
-			m_tInput.vecMouseDir = vecThisMouse - TVector3(m_tInput.fMouseX, m_tInput.fMouseY, 0.0f);
-			m_tInput.fMouseX = vecThisMouse.fX;
-			m_tInput.fMouseY = vecThisMouse.fY;
+			glm::vec3 vecThisMouse(static_cast<float>(LOWORD(lParam) - (m_iClientWidth * 0.5f)), static_cast<float>(-(HIWORD(lParam) - (m_iClientHeight * 0.25f))), 0.0f);
+			m_tInput.vecMouseDir = vecThisMouse - glm::vec3(m_tInput.fMouseX, m_tInput.fMouseY, 0.0f);
+			m_tInput.fMouseX = vecThisMouse.x;
+			m_tInput.fMouseY = vecThisMouse.y;
 		}
 		break;
 	case WM_LBUTTONDOWN:
@@ -500,51 +591,4 @@ CWindow::msgProc(UINT msg, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	return DefWindowProc(m_hMainWnd, msg, wParam, lParam);
-}
-/**
-*
-* CWindow Initialises Main Window
-*
-* @author Christopher Howlett
-*
-*/
-void 
-CWindow::InitialiseMainWindow()
-{
-	wchar_t cClassName[] = L"OPENGL";
-	WNDCLASS winClass;
-	
-	//Create window class
-	winClass.cbClsExtra = 0;
-	winClass.cbWndExtra = 0;
-	winClass.hbrBackground = (HBRUSH)GetStockObject(LTGRAY_BRUSH);
-	winClass.hCursor = LoadCursor(m_hInstance, IDC_ARROW);
-	winClass.hIcon = LoadIcon(m_hInstance, IDI_APPLICATION);
-	winClass.hInstance = m_hInstance;
-	winClass.lpfnWndProc = WindowProc;
-	winClass.lpszClassName = cClassName;
-	winClass.lpszMenuName = NULL;
-	winClass.style = CS_VREDRAW | CS_HREDRAW;
-
-	if(!RegisterClass(&winClass))
-	{
-		Error(L"Window creation FAILED"); 
-	}
-
-	//Initialise window
-	m_hMainWnd = CreateWindow(	cClassName, 
-								L"OpenGL Test", 
-								WS_MINIMIZEBOX | WS_VISIBLE | WS_OVERLAPPEDWINDOW,
-								0,
-								0,
-								WINDOW_WIDTH,
-								WINDOW_HEIGHT,
-								NULL,
-								NULL,
-								m_hInstance, 
-								NULL);
-	if(!m_hMainWnd)
-	{
-		Error(L"Window creation failed2");
-	}
 }

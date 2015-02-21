@@ -16,22 +16,27 @@
 #ifndef __DEFINES_H__
 #define __DEFINES_H__
 
-#include "chrismaths.h"
+#include <glm/glm.hpp>
+#include <cassert>
 
 //Program definitions
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
 
 //Helpful defines / functions
+#define SAFEDELETE(_object) { if(_object){ delete _object;_object = 0; } }
+#define SAFEDELETEARRAY(_array){ if(_array){ delete[] _array; _array = 0; } }
+#define ReleaseCOM(_COM) { if(_COM){ _COM->Release();_COM = 0; } }
 #define Error(pwcErrorMessage) MessageBox(NULL, pwcErrorMessage, L"ERROR", MB_OK)
+#define ErrAssert(expression, pwcErrorMessage) if( !expression ){ MessageBox(NULL, pwcErrorMessage, L"ERROR", MB_OK);  assert( expression ); }
 
 //Vertex structures
 struct TVertexType
 {
-	TVector3 vecPos;
-	TVector2 texCoord;
-	TVector3 vecNormal;
-	TVector3 vecTangent;
+	glm::vec3 vecPos;
+	glm::vec2 texCoord;
+	glm::vec3 vecNormal;
+	glm::vec3 vecTangent;
 };
 //Texture types
 enum ETextureType
@@ -68,8 +73,8 @@ struct TRay
 		vecPosition *= 0.0f;
 		vecDirection *= 0.0f;
 	}
-	TVector3 vecPosition;
-	TVector3 vecDirection;
+	glm::vec3 vecPosition;
+	glm::vec3 vecDirection;
 };
 struct TInputStruct
 {
@@ -125,12 +130,12 @@ struct TInputStruct
 	bool bTilde;
 	bool bPlus;
 	bool bMinus;
-	TVector3 vecMouseDir;
+	glm::vec3 vecMouseDir;
 	TRay t3DMouseRay;
 };
 struct TClothParticle
 {
-	void Initialise(TVector3& _rPosition)
+	void Initialise(glm::vec3& _rPosition)
 	{
 		vecPosition = _rPosition;
 		vecPreviousPosition = _rPosition;
@@ -146,9 +151,9 @@ struct TClothParticle
 	{
 		bIsFixed = _bIsFixed;
 	}
-	TVector3 vecPosition;
-	TVector3 vecPreviousPosition;
-	TVector3 vecStartPosition;
+	glm::vec3 vecPosition;
+	glm::vec3 vecPreviousPosition;
+	glm::vec3 vecStartPosition;
 	bool bIsFixed;
 };
 

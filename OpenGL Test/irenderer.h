@@ -24,6 +24,7 @@ public:
 	virtual ~IRenderer(){};
 
 	virtual bool Initialise(HWND _hWnd, int _iWindowWidth, int _iWindowHeight, TInputStruct* _pInput){ return true; };
+	virtual bool InitialiseExtensions( HWND _hWnd ){ return false; }
 	virtual void CleanUp(){};
 	virtual void ExecuteOneFrame(float _fDeltaTick){};
 	virtual void SetFPSCount(int _iFramesPerSecond){};

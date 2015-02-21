@@ -54,7 +54,7 @@ public:
 	virtual LRESULT msgProc(UINT msg, WPARAM wParam, LPARAM lParam);
 	
 protected:
-	void InitialiseMainWindow();
+	bool InitialiseMainWindow( wchar_t* _pTitle, int _iX, int _iY, int _iWidth, int _iHeight, bool _bFullscreen, bool _bVSync );
 private:
 	CWindow(const CWindow& _kr);
 	CWindow& operator= (const CWindow& _rhs);
@@ -65,10 +65,8 @@ protected:
 	TInputStruct m_tInput;
 
 	HINSTANCE m_hInstance;
-	HWND      m_hMainWnd;
-	bool      mMinimized;
-	bool      mMaximized;
-	bool      mResizing;
+	HWND m_hMainWnd;
+	bool m_bIsFullscreen;
 
 	CClock* m_pClock;
 
