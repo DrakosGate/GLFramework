@@ -18,6 +18,8 @@
 
 #include <glm/glm.hpp>
 #include <cassert>
+#include <string>
+#include <sstream>
 
 //Program definitions
 #define WINDOW_WIDTH 1280
@@ -29,6 +31,27 @@
 #define ReleaseCOM(_COM) { if(_COM){ _COM->Release();_COM = 0; } }
 #define Error(pwcErrorMessage) MessageBox(NULL, pwcErrorMessage, L"ERROR", MB_OK)
 #define ErrAssert(expression, pwcErrorMessage) if( !expression ){ MessageBox(NULL, pwcErrorMessage, L"ERROR", MB_OK);  assert( expression ); }
+
+class Model;
+class Texture;
+
+template<class T> T ReadFromString( std::string _sInput )
+{
+	std::stringstream sStream;
+	sStream << _sInput;
+	T result;
+	sStream >> result;
+	return result;
+}
+
+enum EGameScene
+{
+	SCENE_INVALID = -1,
+	SCENE_PERMANENTSCENE,
+	SCENE_3DSCENE,
+	SCENE_FINAL,
+	SCENE_MAX
+};
 
 //Vertex structures
 struct TVertexType

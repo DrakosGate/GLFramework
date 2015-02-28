@@ -35,7 +35,11 @@ GameObject::GameObject()
 */
 GameObject::~GameObject()
 {
-
+	for ( ComponentIterator comp = m_vecComponents.begin( ); comp != m_vecComponents.end( ); ++comp )
+	{
+		SAFEDELETE( *comp );
+	}
+	m_vecComponents.clear( );
 }
 /**
 *
@@ -65,6 +69,16 @@ void
 GameObject::SetParent( GameObject* _pParent )
 {
 	m_transform.SetParent( _pParent );
+}
+
+//Input management
+void 
+GameObject::OnKeyDown( const unsigned int _iKeyID, const float _fDeltaTime ) 
+{
+	if ( _iKeyID == 'W' )
+	{
+		m_transform.SetPosition( m_transform.GetPosition() + glm::vec3( _fDeltaTime, 0.0f, 0.0f ) );
+	}
 }
 
 void

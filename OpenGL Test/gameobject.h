@@ -12,10 +12,12 @@
 
 // Library Includes
 #include <vector>
+#include <typeinfo>
 #include <glm/glm.hpp>
 
 // Local Includes
 #include "transformcomponent.h"
+#include "inputlistener.h"
 
 // Types
 
@@ -32,7 +34,7 @@ namespace Component
 	class Transform;
 }
 
-class GameObject
+class GameObject : public Listeners::InputListener
 {
 public:
 	GameObject();
@@ -46,17 +48,29 @@ public:
 	virtual void AddChild( GameObject* _pChild );
 	virtual void SetParent( GameObject* _pParent );
 
+	//Input management
+	virtual void OnKeyDown( const unsigned int _iKeyID, const float _fDeltaTime ) override;
+
 	//Component functionality
 	virtual void AddComponent( BaseComponent* _pComponent );
 	virtual BaseComponent* GetComponentByName( char* _pName );
 
 	template <typename T>
+	T* AddComponent( )
+	{
+		T* pNewComponent = new T();
+		AddComponent( pNewComponent );
+		return pNewComponent;
+	}
+	template <typename T>
 	T* GetComponent( )
 	{
 		for ( ComponentConstIterator iter = m_vecComponents.begin( ); iter != m_vecComponents.end( ); ++iter )
 		{
-			if ( typeid(*iter) == typeid(T) )
-			return *iter;
+			if ( typeid( T ) == typeid( **iter ) )
+			{
+				return dynamic_cast<T*>( *iter );
+			}
 		}
 		return 0;
 	}

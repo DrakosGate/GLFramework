@@ -1,11 +1,4 @@
 //
-// Bachelor of Software Engineering - Year 2
-// Media Design School
-// Auckland 
-// New Zealand
-//
-// (c) 2013 Media Design School
-//
 //  File Name   :   shader.h
 //  Description :   Class of CShader
 //  Author      :   Christopher Howlett
@@ -20,39 +13,38 @@
 // Library Includes
 
 // Local Includes
+#include "resource.h"
 
 // Types
 
 // Constants
 
 // Prototypes
-class COpenGLRenderer;
 
-class CShader
+class Shader : public Resource
 {
 public:
-	CShader();
-	~CShader();
+	Shader();
+	virtual ~Shader();
 
-	bool InitialiseShader(COpenGLRenderer* _pRenderer, char* _pcVertexShader, char* _pcFragmentShader);
+	bool InitialiseShader( char* _pcVertexShader, char* _pcFragmentShader);
 	char* LoadShader(char* _pcFilename);
-	void SetShader(COpenGLRenderer* _pRenderer);
-	void SetShaderMatrix(COpenGLRenderer* _pRenderer, char* _pcVariableName, float* _pMatrix);
-	void SetShaderInteger(COpenGLRenderer* _pRenderer, char* _pcVariableName, int _iInteger);
-	void SetShaderFloat(COpenGLRenderer* _pRenderer, char* _pcVariableName, float _fFloat);
-	void SetShaderVector3(COpenGLRenderer* _pRenderer, char* _pcVariableName, glm::vec3& _rVector);
-	void SetShaderVector4(COpenGLRenderer* _pRenderer, char* _pcVariableName, glm::vec4& _rVector);
-	void OutputShaderErrorMessage(COpenGLRenderer* _pRenderer, unsigned int _uiShaderId);
+	void SetShader( );
+	void SetShaderMatrix( char* _pcVariableName, const glm::mat4& _pMatrix );
+	void SetShaderInteger( char* _pcVariableName, int _iInteger);
+	void SetShaderFloat( char* _pcVariableName, float _fFloat);
+	void SetShaderVector3( char* _pcVariableName, glm::vec3& _rVector);
+	void SetShaderVector4( char* _pcVariableName, glm::vec4& _rVector);
+	void OutputShaderErrorMessage( unsigned int _uiShaderId);
 
 	int GetShaderProgram() const;
 
 private:
-	CShader(const CShader& _krInstanceToCopy);
-	const CShader& operator =(const CShader& _krInstanceToCopy);
+	Shader(const Shader& _krInstanceToCopy);
+	const Shader& operator =(const Shader& _krInstanceToCopy);
 
 
 private:
-	COpenGLRenderer* m_pRenderer;
 	unsigned int m_uiVertexShader;
 	unsigned int m_uiFragmentShader;
 	unsigned int m_uiShaderProgram;

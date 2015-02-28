@@ -1,11 +1,4 @@
 //
-// Bachelor of Software Engineering - Year 2
-// Media Design School
-// Auckland 
-// New Zealand
-//
-// (c) 2013 Media Design School
-//
 //  File Name   :   camera.h
 //  Description :   Declaration of camera class
 //  Author      :   Christopher Howlett
@@ -64,14 +57,15 @@ public:
 	void SetFOV(float _fFOV);
 	void SetView3D( glm::vec3& _rVecRight, glm::vec3& _rVecUp, glm::vec3& _rVecDir, glm::vec3& _rVecPos);
 	void SetViewLookAt(glm::vec3& _rVecPos, glm::vec3& _rVecLook, glm::vec3& _rVecUp);
-	void SetViewMatrix(glm::mat4x4& _rMatView);
-	void SetProjMatrix(glm::mat4x4& _rMatProj);
+	void SetViewMatrix(glm::mat4& _rMatView);
+	void SetProjMatrix(glm::mat4& _rMatProj);
 	
-	glm::mat4x4& GetViewMatrix();
-	glm::mat4x4& GetProjectionMatrix();
-	glm::mat4x4& GetWorldMatrix();
+	glm::mat4& GetViewMatrix();
+	glm::mat4& GetProjectionMatrix();
+	glm::mat4& GetWorldMatrix();
 	
 	void Calculate3DMouseCoordinates(glm::vec2& _rVecMouse, TRay& _rRay);
+	glm::vec3 VecConvert( const glm::vec3& _original ) { return glm::vec3( _original.x, -_original.y, _original.z ); }
 
 protected:
 	Camera(const Camera& _kr);
@@ -86,9 +80,9 @@ protected:
 	float m_fRotationSpeed;
 	float m_fSpeedBoost;
 	
-	glm::mat4x4 m_matView;
-	glm::mat4x4 m_matProj;
-	glm::mat4x4 m_matWorld;
+	glm::mat4 m_matView;
+	glm::mat4 m_matProj;
+	glm::mat4 m_matWorld;
 
 	float m_fFOV;
 	float m_fNearClip;

@@ -18,6 +18,7 @@
 #include "defines.h"
 #include "clock.h"
 #include "openglrenderer.h"
+#include "inputmanager.h"
 
 // This Include
 #include "window.h"
@@ -335,6 +336,7 @@ Window::ExecuteOneFrame()
 LRESULT 
 Window::msgProc(UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	InputManager::GetInstance()->ProcessInput( m_hMainWnd, msg, wParam, lParam );
 	switch( msg )
 	{
 	// ======================================================= 

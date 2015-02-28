@@ -87,7 +87,7 @@ void main(void)
 		vecLightingColour.w = 1.0f;
 	}
 	//Multiply texture colour with lighting
-	outputColour = vecLightingColour * textureColour;
+	outputColour = textureColour;//vecLightingColour * textureColour;
 	outputColour.a = textureColour.a;
 	//float fDepth = texture(gDepthTexture, texCoord).x;
 	//outputColour = vec4(fDepth, fDepth, fDepth, 1.0f);

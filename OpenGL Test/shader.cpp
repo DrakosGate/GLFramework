@@ -14,10 +14,11 @@
 
 // Library Includes
 #include <fstream>
+#include <glm/gtc/type_ptr.hpp>
 
 // Local Includes
-#include "openglrenderer.h"
 #include "defines.h"
+#include "openglrenderer.h"
 
 // This Include
 #include "shader.h"
@@ -35,11 +36,10 @@ using namespace std;
 * @author Christopher Howlett
 *
 */
-CShader::CShader()
+Shader::Shader()
 :	m_uiVertexShader(0)
 ,	m_uiFragmentShader(0)
 ,	m_uiShaderProgram(0)
-,	m_pRenderer(0)
 {
 
 }
@@ -50,7 +50,7 @@ CShader::CShader()
 * @author Christopher Howlett
 *
 */
-CShader::~CShader()
+Shader::~Shader()
 {
 	glDetachShader(m_uiShaderProgram, m_uiVertexShader);
 	glDetachShader(m_uiShaderProgram, m_uiFragmentShader);
@@ -73,9 +73,8 @@ CShader::~CShader()
 *
 */
 bool 
-CShader::InitialiseShader(COpenGLRenderer* _pRenderer, char* _pcVertexShader, char* _pcFragmentShader)
+Shader::InitialiseShader( char* _pcVertexShader, char* _pcFragmentShader)
 {
-	m_pRenderer = _pRenderer;
 	bool bSuccess = true;
 	int iResult = 0;
 
@@ -106,14 +105,14 @@ CShader::InitialiseShader(COpenGLRenderer* _pRenderer, char* _pcVertexShader, ch
 	glGetShaderiv(m_uiVertexShader, GL_COMPILE_STATUS, &iResult);
 	if(iResult != 1)
 	{
-		OutputShaderErrorMessage(_pRenderer, m_uiVertexShader);
+		OutputShaderErrorMessage( m_uiVertexShader);
 		Error(L"Vertex shader failed initialisation");
 		bSuccess = false;
 	}
 	glGetShaderiv(m_uiFragmentShader, GL_COMPILE_STATUS, &iResult);
 	if(iResult != 1)
 	{
-		OutputShaderErrorMessage(_pRenderer, m_uiFragmentShader);
+		OutputShaderErrorMessage( m_uiFragmentShader);
 		Error(L"Fragment shader failed initialisation");
 		bSuccess = false;
 	}
@@ -151,7 +150,7 @@ CShader::InitialiseShader(COpenGLRenderer* _pRenderer, char* _pcVertexShader, ch
 *
 */
 char* 
-CShader::LoadShader(char* _pcFilename)
+Shader::LoadShader(char* _pcFilename)
 {
 	ifstream fileIn;
 	char cInput;
@@ -192,7 +191,7 @@ CShader::LoadShader(char* _pcFilename)
 *
 */
 void 
-CShader::SetShader(COpenGLRenderer* _pRenderer)
+Shader::SetShader( )
 {
 	glUseProgram(m_uiShaderProgram);
 }
@@ -205,10 +204,10 @@ CShader::SetShader(COpenGLRenderer* _pRenderer)
 *
 */
 void 
-CShader::SetShaderMatrix(COpenGLRenderer* _pRenderer, char* _pcVariableName, float* _pMatrix)
+Shader::SetShaderMatrix( char* _pcVariableName, const glm::mat4& _pMatrix)
 {
 	unsigned int uiLocation = glGetUniformLocation(m_uiShaderProgram, _pcVariableName);
-	glUniformMatrix4fv(uiLocation, 1, false, _pMatrix);
+	glUniformMatrix4fv(uiLocation, 1, false, glm::value_ptr(_pMatrix) );
 }
 /**
 *
@@ -219,7 +218,7 @@ CShader::SetShaderMatrix(COpenGLRenderer* _pRenderer, char* _pcVariableName, flo
 *
 */
 void 
-CShader::SetShaderInteger(COpenGLRenderer* _pRenderer, char* _pcVariableName, int _iInteger)
+Shader::SetShaderInteger( char* _pcVariableName, int _iInteger)
 {
 	unsigned int uiLocation = glGetUniformLocation(m_uiShaderProgram, _pcVariableName);
 	glUniform1i(uiLocation, _iInteger);
@@ -233,7 +232,7 @@ CShader::SetShaderInteger(COpenGLRenderer* _pRenderer, char* _pcVariableName, in
 *
 */
 void 
-CShader::SetShaderFloat(COpenGLRenderer* _pRenderer, char* _pcVariableName, float _fFloat)
+Shader::SetShaderFloat( char* _pcVariableName, float _fFloat)
 {
 	unsigned int uiLocation = glGetUniformLocation(m_uiShaderProgram, _pcVariableName);
 	glUniform1f(uiLocation, _fFloat);
@@ -247,10 +246,10 @@ CShader::SetShaderFloat(COpenGLRenderer* _pRenderer, char* _pcVariableName, floa
 *
 */
 void 
-CShader::SetShaderVector3(COpenGLRenderer* _pRenderer, char* _pcVariableName, glm::vec3& _rVector)
+Shader::SetShaderVector3( char* _pcVariableName, glm::vec3& _rVector)
 {
 	unsigned int uiLocation = glGetUniformLocation(m_uiShaderProgram, _pcVariableName);
-	glUniform3fv(uiLocation, 1, reinterpret_cast<float*>(&_rVector));
+	glUniform3fv( uiLocation, 1, glm::value_ptr( _rVector ) );
 }
 /**
 *
@@ -261,10 +260,10 @@ CShader::SetShaderVector3(COpenGLRenderer* _pRenderer, char* _pcVariableName, gl
 *
 */
 void 
-CShader::SetShaderVector4(COpenGLRenderer* _pRenderer, char* _pcVariableName, glm::vec4& _rVector)
+Shader::SetShaderVector4( char* _pcVariableName, glm::vec4& _rVector)
 {
 	unsigned int uiLocation = glGetUniformLocation(m_uiShaderProgram, _pcVariableName);
-	glUniform4fv(uiLocation, 1, reinterpret_cast<float*>(&_rVector));
+	glUniform4fv( uiLocation, 1, glm::value_ptr( _rVector ) );
 }
 /**
 *
@@ -274,7 +273,7 @@ CShader::SetShaderVector4(COpenGLRenderer* _pRenderer, char* _pcVariableName, gl
 *
 */
 void 
-CShader::OutputShaderErrorMessage(COpenGLRenderer* _pRenderer, unsigned int _uiShaderId)
+Shader::OutputShaderErrorMessage( unsigned int _uiShaderId)
 {
 	int iLogSize = 0;
 	char* pcInfoLog;
@@ -314,7 +313,7 @@ CShader::OutputShaderErrorMessage(COpenGLRenderer* _pRenderer, unsigned int _uiS
 *
 */
 int 
-CShader::GetShaderProgram() const
+Shader::GetShaderProgram() const
 {
 	return m_uiShaderProgram;
 }

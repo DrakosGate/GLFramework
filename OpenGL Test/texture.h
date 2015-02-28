@@ -1,11 +1,4 @@
 //
-// Bachelor of Software Engineering - Year 2
-// Media Design School
-// Auckland 
-// New Zealand
-//
-// (c) 2013 Media Design School
-//
 //  File Name   :   texture.h
 //  Description :   Declaration of Texture class
 //  Author      :   Christopher Howlett
@@ -20,36 +13,33 @@
 // Library Includes
 
 // Local Includes
+#include "resource.h"
 
 // Types
 
 // Constants
 
 // Prototypes
-class COpenGLRenderer;
+class OpenGLRenderer;
 
-class Texture
+class Texture : public Resource
 {
 //Member functions
 public:
 	Texture();
-	~Texture();
+	virtual ~Texture();
 
-	bool Initialise(COpenGLRenderer* _pRenderer, char* _pcFilename, unsigned int _uiTextureUnit);
-	bool LoadFromPNG(COpenGLRenderer* _pRenderer, char* _pcFilename, unsigned int _uiTextureUnit);
-	bool LoadFromTarga(COpenGLRenderer* _pRenderer, char* _pcFilename, unsigned int _uiTextureUnit);
+	bool Initialise( const char* _pcFilename, unsigned int _uiTextureUnit);
+	bool LoadFromPNG( const char* _pcFilename, unsigned int _uiTextureUnit);
+	bool LoadFromTarga( const char* _pcFilename, unsigned int _uiTextureUnit);
 	
-	unsigned int GetTextureID() const;
-
 private:
 	Texture(const Texture& _krInstanceToCopy);
 	const Texture& operator =(const Texture& _krInstanceToCopy);
 
 //Member variables
 private:
-	COpenGLRenderer* m_pRenderer;
 	bool m_bIsLoaded;
-	unsigned int m_uiTextureID;
 	int m_iTextureDimensions;
 
 };

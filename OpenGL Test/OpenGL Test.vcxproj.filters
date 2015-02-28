@@ -40,6 +40,21 @@
     <Filter Include="Source Files\Components">
       <UniqueIdentifier>{2de40e88-426a-4598-8ecc-79ee61d08c8c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Rendering">
+      <UniqueIdentifier>{c6092810-5f13-4400-ad5c-8a06991cb2fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Rendering">
+      <UniqueIdentifier>{13b41390-2e53-4bb6-8034-301ad1cff920}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tools">
+      <UniqueIdentifier>{e300c669-1a73-44f8-85e3-a240707ddf0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Input">
+      <UniqueIdentifier>{dd73ff0d-61dc-4c42-a975-713f3820ff3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Input">
+      <UniqueIdentifier>{58fa32db-ab07-49c7-a729-b932f49a476b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Bin\Shaders\colour.ps">
@@ -59,6 +74,9 @@
     </None>
     <None Include="..\Bin\Shaders\diffuselighting.frag">
       <Filter>Resource Files</Filter>
+    </None>
+    <None Include="inputlistener.h">
+      <Filter>Header Files\Input</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -92,31 +110,46 @@
     <ClInclude Include="gameobject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="shader.h">
+    <ClInclude Include="level.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="renderablecomponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="model.h">
+      <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="shader.h">
+      <Filter>Header Files\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="texture.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="texturetypes.h">
+      <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="animatedmodel.h">
+      <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="lodepng.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="inputmanager.h">
+      <Filter>Header Files\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="boundingbox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="level.h">
+    <ClInclude Include="resourcemanager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gameobject.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="texture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="component.cpp">
-      <Filter>Source Files\Components</Filter>
     </ClCompile>
     <ClCompile Include="transformcomponent.cpp">
       <Filter>Source Files\Components</Filter>
@@ -141,6 +174,33 @@
     </ClCompile>
     <ClCompile Include="window.cpp">
       <Filter>Source Files\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="renderablecomponent.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="model.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="shader.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="texture.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="animatedmodel.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="lodepng.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="inputmanager.cpp">
+      <Filter>Source Files\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="boundingbox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="resourcemanager.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

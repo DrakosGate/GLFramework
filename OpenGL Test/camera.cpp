@@ -104,7 +104,6 @@ Camera::Process(const float _fDeltaTick)
 {
 	//Recalculate view matrix
 	m_matView = glm::lookAt( GetTransform( ).GetPosition( ), GetTransform( ).GetPosition( ) + GetTransform( ).GetForward( ), GetTransform( ).GetUp( ) );
-	//NMatrix::Transformation(m_matWorld, GetTransform( ).GetPosition( ), m_vecScale, m_vecRotation);
 }
 /**
 *
@@ -326,7 +325,7 @@ Camera::SetViewLookAt(	glm::vec3& _rVecPos,
 *
 */
 void 
-Camera::SetViewMatrix(glm::mat4x4& _rMatView)
+Camera::SetViewMatrix(glm::mat4& _rMatView)
 {
 	//Store view matrix
 	m_matView = _rMatView;
@@ -340,7 +339,7 @@ Camera::SetViewMatrix(glm::mat4x4& _rMatView)
 *
 */
 void 
-Camera::SetProjMatrix(glm::mat4x4& _rMatProj)
+Camera::SetProjMatrix(glm::mat4& _rMatProj)
 {
 	//Store projection matrix
 	m_matProj = _rMatProj;
@@ -353,7 +352,7 @@ Camera::SetProjMatrix(glm::mat4x4& _rMatProj)
 * @return Camera view matrix
 *
 */
-glm::mat4x4& 
+glm::mat4& 
 Camera::GetViewMatrix()
 {
 	return m_matView;
@@ -366,7 +365,7 @@ Camera::GetViewMatrix()
 * @return Camera projection matrix
 *
 */
-glm::mat4x4& 
+glm::mat4& 
 Camera::GetProjectionMatrix()
 {
 	return m_matProj;
@@ -379,7 +378,7 @@ Camera::GetProjectionMatrix()
 * @return Camera world matrix
 *
 */
-glm::mat4x4& 
+glm::mat4& 
 Camera::GetWorldMatrix()
 {
 	return m_matWorld;

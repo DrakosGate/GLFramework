@@ -21,6 +21,7 @@
 
 // Local Includes
 #include "irenderer.h"
+#include "level.h"
 
 // Types
 #define WGL_CONTEXT_MAJOR_VERSION_ARB 0x2091
@@ -34,7 +35,6 @@ typedef HGLRC(WINAPI * PFNWGLCREATECONTEXTATTRIBSARBPROC) (HDC _hdc, HGLRC _hSha
 // Prototypes
 class Camera;
 class Clock;
-class Level;
 class Window;
 class ConsoleWindow;
 
@@ -73,7 +73,7 @@ private:
 
 //Member variables
 private:
-	Level* m_pLevel;
+	Level m_pLevel;
 
 	//Input
 	TInputStruct* m_pInput;

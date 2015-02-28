@@ -1,13 +1,21 @@
 
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/quaternion.hpp>
+
 #include "transformcomponent.h"
 
 namespace Component
 {
 	Transform::Transform( )
 	{
+		SetPosition( glm::vec3( 0.1f, 0.1f, 0.1f ) );
+		SetScale( glm::vec3( 1.0f, 1.0f, 1.0f ) ); 
+		SetRotation( glm::vec3( 0.0f, 0.0f, 0.0f ) );
 
+		SetForward( glm::vec3( 0.0f, 0.0f, 1.0f ) );
+		SetRight( glm::vec3( 1.0f, 0.0f, 0.0f ) );
+		SetUp( glm::vec3( 0.0f, 1.0f, 0.0f ) );
 	}
 
 	Transform::~Transform( )
@@ -16,21 +24,27 @@ namespace Component
 	}
 
 	bool
-	Transform::Initialise( GameObject* _pOwner )
+		Transform::Initialise( GameObject* _pOwner )
 	{
-		return true;
-	}
+			return true;
+		}
 
 	void
 	Transform::Process( float _fDeltaTime )
 	{
-			m_matWorld = glm::translate( glm::mat4( 1.0f ), m_vecPosition );
+			glm::mat4 matTranslate = glm::translate( glm::mat4( 1.0f ), VecConvert( m_vecPosition ) );
 
-			m_matWorld = glm::rotate( m_matWorld, m_vecRotation.x, glm::vec3( 0.0f, 1.0f, 0.0f ) );
-			m_matWorld = glm::rotate( m_matWorld, m_vecRotation.y, glm::vec3( -1.0f, 0.0f, 0.0f ) );
-			m_matWorld = glm::rotate( m_matWorld, m_vecRotation.z, glm::vec3( 0.0f, 1.0f, 0.0f ) );
+			glm::vec3 convertedRotation = VecConvert( m_vecRotation );
+			glm::mat4 matRotate = glm::rotate( glm::mat4( 1.0f ), convertedRotation.x, glm::vec3( 1.0f, 0.0f, 0.0f ) );
+			matRotate = glm::rotate( matRotate, convertedRotation.y, glm::vec3( 0.0f, 1.0f, 0.0f ) );
+			matRotate = glm::rotate( matRotate, convertedRotation.z, glm::vec3( 0.0f, 0.0f, 1.0f ) );
 
-			m_matWorld = glm::scale( m_matWorld, m_vecScale );
+			//glm::quat tempRot = glm::toQuat( );
+			//glm::mat4 matRotate = glm::toMat4( normalize( tempRot ) );
+
+			glm::mat4 matScale = glm::scale( glm::mat4( 1.0f ), m_vecScale );
+			
+			m_matWorld = matTranslate * matRotate * matScale;
 		}
 
 	void
@@ -43,6 +57,12 @@ namespace Component
 	Transform::SetParent( GameObject* _pParent )
 	{
 		m_pParent = _pParent;
+	}
+
+	const glm::mat4& 
+	Transform::GetMatrix( ) const
+	{
+		return m_matWorld;
 	}
 
 	/**
@@ -92,7 +112,7 @@ namespace Component
 	* @return Transform rotation
 	*
 	*/
-	glm::vec3& 
+	glm::vec3&
 	Transform::GetRotation()
 	{
 		return m_vecRotation;

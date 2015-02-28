@@ -16,6 +16,10 @@
 #include <Windows.h>
 
 // Local Includes
+#include "gameobject.h"
+#include "camera.h"
+#include "resourcemanager.h"
+#include "shader.h"
 
 // Types
 
@@ -34,10 +38,10 @@ public:
 	~Level();
 	bool Initialise( OpenGLRenderer* _pRenderer, Window* _pWindow );
 	void Process( const float _fDeltaTime );
+	void Draw( );
 
-
-	virtual const Camera* GetPerspectiveCamera( ) const { return m_pPerspectiveCamera; }
-	virtual const Camera* GetOrthographicCamera( ) const { return m_pOrthographicCamera; }
+	virtual const Camera* GetPerspectiveCamera( ) const { return &m_pPerspectiveCamera; }
+	virtual const Camera* GetOrthographiCamera( ) const { return &m_pOrthographiCamera; }
 
 protected:
 
@@ -47,11 +51,14 @@ private:
 
     // Member Variables
 protected:
+	ResourceManager m_resourceManager;
+	Shader pShader;
 	//Cameras
-	Camera* m_pPerspectiveCamera;
-	Camera* m_pOrthographicCamera;
+	Camera m_pPerspectiveCamera;
+	Camera m_pOrthographiCamera;
 	bool m_bIsFirstPerson;
 
+	GameObject testobject;
 };
 
 #endif // __Level_H__

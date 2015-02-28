@@ -41,7 +41,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\Bin\glm;..\Bin\Tools\rapidxml-1.13;..\Bin\glew-1.12.0\include;C:\Program Files %28x86%29\Visual Leak Detector\include;$(WindowsSDK_IncludePath)\Include;$(IncludePath)</IncludePath>
+    <IncludePath>..\Bin\Tools\lpng1616;..\Bin\glm;..\Bin\Tools\rapidxml-1.13;..\Bin\glew-1.12.0\include;C:\Program Files %28x86%29\Visual Leak Detector\include;$(WindowsSDK_IncludePath)\Include;$(IncludePath)</IncludePath>
     <OutDir>..\Test\</OutDir>
     <IntDir>..\Obj\Debug\</IntDir>
     <LibraryPath>C:\Program Files %28x86%29\Visual Leak Detector\lib\Win32;..\Bin\glew-1.12.0\lib\Release\Win32;$(WindowsSDK_IncludePath)\Lib;$(LibraryPath)</LibraryPath>
@@ -50,7 +50,7 @@
     <LinkIncremental>false</LinkIncremental>
     <OutDir>..\Bin\</OutDir>
     <IntDir>..\Obj\Release\</IntDir>
-    <IncludePath>..\Bin\glm;..\Bin\Tools\rapidxml-1.13;..\Bin\glew-1.12.0\include;C:\Program Files %28x86%29\Visual Leak Detector\include;$(WindowsSDK_IncludePath)\Include;$(IncludePath)</IncludePath>
+    <IncludePath>..\Bin\Tools\lpng1616;..\Bin\glm;..\Bin\Tools\rapidxml-1.13;..\Bin\glew-1.12.0\include;C:\Program Files %28x86%29\Visual Leak Detector\include;$(WindowsSDK_IncludePath)\Include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files %28x86%29\Visual Leak Detector\lib\Win32;..\Bin\glew-1.12.0\lib\Release\Win32;$(WindowsSDK_IncludePath)\Lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -64,6 +64,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\Users\user\Desktop\OpenGL Framework\Bin\glew-1.10.0\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -80,6 +81,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -89,17 +91,26 @@
     <None Include="..\Bin\Shaders\diffuselighting.vert" />
     <None Include="..\Bin\Shaders\texture.ps" />
     <None Include="..\Bin\Shaders\texture.vs" />
+    <None Include="inputlistener.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="animatedmodel.h" />
+    <ClInclude Include="boundingbox.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="clock.h" />
     <ClInclude Include="component.h" />
     <ClInclude Include="consolewindow.h" />
     <ClInclude Include="defines.h" />
     <ClInclude Include="gameobject.h" />
+    <ClInclude Include="inputmanager.h" />
     <ClInclude Include="irenderer.h" />
     <ClInclude Include="level.h" />
+    <ClInclude Include="lodepng.h" />
+    <ClInclude Include="model.h" />
     <ClInclude Include="openglrenderer.h" />
+    <ClInclude Include="renderablecomponent.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="resourcemanager.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="texturetypes.h" />
@@ -107,14 +118,20 @@
     <ClInclude Include="window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="animatedmodel.cpp" />
+    <ClCompile Include="boundingbox.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="clock.cpp" />
-    <ClCompile Include="component.cpp" />
     <ClCompile Include="consolewindow.cpp" />
     <ClCompile Include="gameobject.cpp" />
+    <ClCompile Include="inputmanager.cpp" />
     <ClCompile Include="level.cpp" />
+    <ClCompile Include="lodepng.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="model.cpp" />
     <ClCompile Include="openglrenderer.cpp" />
+    <ClCompile Include="renderablecomponent.cpp" />
+    <ClCompile Include="resourcemanager.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="texture.cpp" />
     <ClCompile Include="transformcomponent.cpp" />

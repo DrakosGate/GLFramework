@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <glm/glm.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 #include "component.h"
 
@@ -25,6 +26,8 @@ namespace Component
 		virtual void AddChild( GameObject* _pChild );
 		virtual void SetParent( GameObject* _pParent );
 		
+		virtual const glm::mat4& GetMatrix() const;
+
 		//PRS Accessor functions
 		virtual void SetPosition( glm::vec3& _rVecPosition );
 		virtual glm::vec3& GetPosition( );
@@ -41,8 +44,10 @@ namespace Component
 		virtual void SetUp( glm::vec3& _rVecUp );
 		virtual glm::vec3& GetUp( );
 
+		glm::vec3 VecConvert( const glm::vec3& _original ) { return glm::vec3( _original.x, -_original.y, _original.z ); }		   
+
 	protected:
-		glm::mat4x4 m_matWorld;
+		glm::mat4 m_matWorld;
 
 		glm::vec3 m_vecPosition;
 		glm::vec3 m_vecScale;
